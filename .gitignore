@@ -1,0 +1,10 @@
+# Собранные HTML-канвасы дизайна (payload ~2МБ+) — держим только .dc.html
+# исходники и canvas.json, не готовый seeded-файл.
+design/**/*.html
+
+# Windows/OS
+Thumbs.db
+desktop.ini
+
+# Локальные настройки Claude Code для этой машины/сессии
+.claude/settings.local.json

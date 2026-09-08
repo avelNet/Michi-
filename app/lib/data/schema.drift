@@ -1,0 +1,231 @@
+-- Drift-схема приложения.
+-- Источник истины по дизайну — ../../../db/schema.sql (там же обоснование
+-- решений в docs/database-design.md). Этот файл — рабочее зеркало для
+-- генератора Drift; при правке синхронизировать оба файла вручную, пока
+-- не появится общий генератор.
+
+-- =====================================================================
+-- ЧАСТЬ 1. CONTENT
+-- =====================================================================
+
+CREATE TABLE content_items (
+  id            INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  kind          TEXT NOT NULL CHECK (kind IN ('kana','kanji','word','particle','grammar_point')),
+  jlpt_level    TEXT CHECK (jlpt_level IN ('N5','N4','N3','N2','N1')),
+  frequency_rank INTEGER,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX idx_content_items_kind_level ON content_items(kind, jlpt_level);
+
+CREATE TABLE kana (
+  content_item_id INTEGER NOT NULL PRIMARY KEY REFERENCES content_items(id),
+  script       TEXT NOT NULL CHECK (script IN ('hiragana','katakana')),
+  char         TEXT NOT NULL,
+  romaji       TEXT NOT NULL,
+  gojuon_row   TEXT,
+  variant      TEXT CHECK (variant IN ('base','dakuten','handakuten','youon')),
+  audio_url    TEXT,
+  stroke_data  TEXT,
+  sort_order   INTEGER
+);
+
+CREATE TABLE radicals (
+  id           INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  char         TEXT NOT NULL,
+  meaning_ru   TEXT NOT NULL,
+  stroke_count INTEGER,
+  mnemonic     TEXT,
+  stroke_data  TEXT
+);
+
+CREATE TABLE kanji (
+  content_item_id INTEGER NOT NULL PRIMARY KEY REFERENCES content_items(id),
+  char         TEXT NOT NULL UNIQUE,
+  meanings_ru  TEXT NOT NULL,
+  on_yomi      TEXT,
+  kun_yomi     TEXT,
+  joyo_grade   INTEGER,
+  stroke_count INTEGER,
+  mnemonic     TEXT,
+  stroke_data  TEXT
+);
+
+CREATE TABLE kanji_radicals (
+  content_item_id INTEGER NOT NULL REFERENCES kanji(content_item_id),
+  radical_id      INTEGER NOT NULL REFERENCES radicals(id),
+  position        TEXT,
+  PRIMARY KEY (content_item_id, radical_id)
+);
+
+CREATE TABLE words (
+  content_item_id INTEGER NOT NULL PRIMARY KEY REFERENCES content_items(id),
+  surface_form TEXT NOT NULL,
+  reading      TEXT NOT NULL,
+  meanings_ru  TEXT NOT NULL,
+  part_of_speech TEXT,
+  is_kana_only INTEGER NOT NULL DEFAULT 0,
+  pitch_accent INTEGER,
+  audio_url    TEXT
+);
+
+CREATE TABLE word_kanji (
+  word_content_item_id  INTEGER NOT NULL REFERENCES words(content_item_id),
+  kanji_content_item_id INTEGER NOT NULL REFERENCES kanji(content_item_id),
+  position               INTEGER NOT NULL,
+  PRIMARY KEY (word_content_item_id, kanji_content_item_id)
+);
+
+CREATE TABLE particles (
+  content_item_id INTEGER NOT NULL PRIMARY KEY REFERENCES content_items(id),
+  particle          TEXT NOT NULL,
+  category          TEXT,
+  short_description TEXT,
+  long_theory       TEXT,
+  confusable_with   TEXT
+);
+
+CREATE TABLE grammar_points (
+  content_item_id INTEGER NOT NULL PRIMARY KEY REFERENCES content_items(id),
+  title       TEXT NOT NULL,
+  pattern     TEXT NOT NULL,
+  explanation TEXT NOT NULL,
+  register    TEXT CHECK (register IN ('casual','polite','formal')),
+  related_grammar_ids TEXT
+);
+
+CREATE TABLE sentences (
+  id                  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  text_jp             TEXT NOT NULL,
+  text_furigana       TEXT,
+  text_translation_ru TEXT NOT NULL,
+  audio_url           TEXT,
+  jlpt_level          TEXT CHECK (jlpt_level IN ('N5','N4','N3','N2','N1'))
+);
+
+CREATE TABLE sentence_content_items (
+  sentence_id     INTEGER NOT NULL REFERENCES sentences(id),
+  content_item_id INTEGER NOT NULL REFERENCES content_items(id),
+  usage_note      TEXT,
+  PRIMARY KEY (sentence_id, content_item_id)
+);
+
+CREATE TABLE exercise_types (
+  code     TEXT NOT NULL PRIMARY KEY,
+  pillar   TEXT NOT NULL CHECK (pillar IN ('reading','listening','speaking','writing')),
+  label_ru TEXT NOT NULL
+);
+
+CREATE TABLE units (
+  id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  title       TEXT NOT NULL,
+  subtitle    TEXT,
+  kind        TEXT NOT NULL CHECK (kind IN
+                ('kana','kanji_vocab','particle','grammar','listening','reading','milestone','mixed')),
+  jlpt_level  TEXT CHECK (jlpt_level IN ('N5','N4','N3','N2','N1')),
+  sort_order  INTEGER NOT NULL,
+  description TEXT
+);
+
+CREATE TABLE unit_prerequisites (
+  unit_id          INTEGER NOT NULL REFERENCES units(id),
+  requires_unit_id INTEGER NOT NULL REFERENCES units(id),
+  PRIMARY KEY (unit_id, requires_unit_id)
+);
+
+CREATE TABLE unit_items (
+  unit_id         INTEGER NOT NULL REFERENCES units(id),
+  content_item_id INTEGER NOT NULL REFERENCES content_items(id),
+  role            TEXT NOT NULL DEFAULT 'new' CHECK (role IN ('new','reinforcement')),
+  PRIMARY KEY (unit_id, content_item_id)
+);
+
+-- =====================================================================
+-- ЧАСТЬ 2. USER DATA
+-- =====================================================================
+
+CREATE TABLE users (
+  id           TEXT NOT NULL PRIMARY KEY,
+  display_name TEXT,
+  created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE user_profile (
+  user_id                 TEXT NOT NULL PRIMARY KEY REFERENCES users(id),
+  weight_listening        INTEGER NOT NULL DEFAULT 25,
+  weight_speaking         INTEGER NOT NULL DEFAULT 25,
+  weight_reading          INTEGER NOT NULL DEFAULT 25,
+  weight_writing          INTEGER NOT NULL DEFAULT 25,
+  daily_minutes_goal      INTEGER NOT NULL DEFAULT 15,
+  comprehension_goal_pct  INTEGER,
+  target_jlpt_level       TEXT CHECK (target_jlpt_level IN ('N5','N4','N3','N2','N1')),
+  placement_level         TEXT CHECK (placement_level IN ('N5','N4','N3','N2','N1')),
+  updated_at              TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE srs_cards (
+  id               TEXT NOT NULL PRIMARY KEY,
+  user_id          TEXT NOT NULL REFERENCES users(id),
+  content_item_id  INTEGER NOT NULL REFERENCES content_items(id),
+  exercise_type    TEXT NOT NULL REFERENCES exercise_types(code),
+  state            TEXT NOT NULL DEFAULT 'new' CHECK (state IN ('new','learning','review','relearning','suspended')),
+  due_at           TEXT,
+  stability        REAL,
+  difficulty       REAL,
+  reps             INTEGER NOT NULL DEFAULT 0,
+  lapses           INTEGER NOT NULL DEFAULT 0,
+  last_reviewed_at TEXT,
+  UNIQUE (user_id, content_item_id, exercise_type)
+);
+
+CREATE INDEX idx_srs_due ON srs_cards(user_id, due_at);
+
+CREATE TABLE review_log (
+  id               TEXT NOT NULL PRIMARY KEY,
+  user_id          TEXT NOT NULL REFERENCES users(id),
+  card_id          TEXT NOT NULL REFERENCES srs_cards(id),
+  rating           TEXT NOT NULL CHECK (rating IN ('again','hard','good','easy')),
+  reviewed_at      TEXT NOT NULL,
+  response_time_ms INTEGER,
+  device           TEXT
+);
+
+CREATE INDEX idx_review_log_user_time ON review_log(user_id, reviewed_at);
+
+CREATE TABLE unit_progress (
+  user_id      TEXT NOT NULL REFERENCES users(id),
+  unit_id      INTEGER NOT NULL REFERENCES units(id),
+  status       TEXT NOT NULL DEFAULT 'locked' CHECK (status IN ('locked','unlocked','in_progress','completed')),
+  started_at   TEXT,
+  completed_at TEXT,
+  PRIMARY KEY (user_id, unit_id)
+);
+
+CREATE TABLE user_vocab (
+  user_id         TEXT NOT NULL REFERENCES users(id),
+  content_item_id INTEGER NOT NULL REFERENCES content_items(id),
+  added_at        TEXT NOT NULL DEFAULT (datetime('now')),
+  source          TEXT CHECK (source IN ('manual','from_unit','from_reading')),
+  PRIMARY KEY (user_id, content_item_id)
+);
+
+CREATE TABLE daily_activity (
+  user_id           TEXT NOT NULL REFERENCES users(id),
+  activity_date     TEXT NOT NULL,
+  reviews_done      INTEGER NOT NULL DEFAULT 0,
+  new_items_learned INTEGER NOT NULL DEFAULT 0,
+  minutes_spent     INTEGER NOT NULL DEFAULT 0,
+  goal_met          INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, activity_date)
+);
+
+CREATE TABLE comprehension_snapshot (
+  user_id        TEXT NOT NULL REFERENCES users(id),
+  snapshot_date  TEXT NOT NULL,
+  reading_pct    REAL,
+  listening_pct  REAL,
+  speaking_score REAL,
+  writing_score  REAL,
+  overall_pct    REAL,
+  PRIMARY KEY (user_id, snapshot_date)
+);
