@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../data/database.dart';
 import '../../data/seed/content_seed.dart';
 import '../../theme/app_theme.dart';
+import '../review/review_screen.dart';
 import 'roadmap_repository.dart';
 
 class RoadmapScreen extends StatefulWidget {
@@ -61,15 +62,22 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
             final data = snapshot.data!;
             return Row(
               children: [
-                _NavRail(colors: colors),
+                _NavRail(colors: colors, onOpenReview: _openReview),
                 Expanded(child: _buildPathArea(colors, data)),
-                _Sidebar(colors: colors, data: data),
+                _Sidebar(colors: colors, data: data, onOpenReview: _openReview),
               ],
             );
           },
         ),
       ),
     );
+  }
+
+  Future<void> _openReview() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db)),
+    );
+    setState(() => _future = _load());
   }
 
   Widget _buildPathArea(AppColors colors, _RoadmapData data) {
@@ -564,17 +572,17 @@ class _UnitPopover extends StatelessWidget {
 
 class _NavRail extends StatelessWidget {
   final AppColors colors;
-  const _NavRail({required this.colors});
-
-  static const _icons = [
-    (Icons.map_outlined, 'Дорожная карта', true),
-    (Icons.style_outlined, 'Повторение', false),
-    (Icons.menu_book_outlined, 'Библиотека', false),
-    (Icons.bar_chart_outlined, 'Статистика', false),
-  ];
+  final VoidCallback onOpenReview;
+  const _NavRail({required this.colors, required this.onOpenReview});
 
   @override
   Widget build(BuildContext context) {
+    final icons = [
+      (Icons.map_outlined, 'Дорожная карта', true, null),
+      (Icons.style_outlined, 'Повторение', false, onOpenReview),
+      (Icons.menu_book_outlined, 'Библиотека (скоро)', false, null),
+      (Icons.bar_chart_outlined, 'Статистика (скоро)', false, null),
+    ];
     return Container(
       width: 76,
       color: colors.surface2,
@@ -583,19 +591,23 @@ class _NavRail extends StatelessWidget {
         children: [
           Icon(Icons.account_balance_outlined, color: colors.accent, size: 26),
           const SizedBox(height: 18),
-          for (final item in _icons)
+          for (final item in icons)
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Tooltip(
                 message: item.$2,
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: item.$3 ? Color.alphaBlend(colors.accent.withValues(alpha: 0.14), colors.surface) : null,
-                    borderRadius: BorderRadius.circular(14),
+                child: InkWell(
+                  onTap: item.$4,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: item.$3 ? Color.alphaBlend(colors.accent.withValues(alpha: 0.14), colors.surface) : null,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(item.$1, color: item.$3 ? colors.accent : colors.inkSoft, size: 22),
                   ),
-                  child: Icon(item.$1, color: item.$3 ? colors.accent : colors.inkSoft, size: 22),
                 ),
               ),
             ),
@@ -610,7 +622,8 @@ class _NavRail extends StatelessWidget {
 class _Sidebar extends StatelessWidget {
   final AppColors colors;
   final _RoadmapData data;
-  const _Sidebar({required this.colors, required this.data});
+  final VoidCallback onOpenReview;
+  const _Sidebar({required this.colors, required this.data, required this.onOpenReview});
 
   @override
   Widget build(BuildContext context) {
@@ -648,6 +661,17 @@ class _Sidebar extends StatelessWidget {
                   data.dueReviews == 0 ? 'пока нечего повторять' : 'карточек ждут повторения',
                   style: TextStyle(fontSize: 12.5, color: colors.muted),
                 ),
+                if (data.dueReviews > 0) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: onOpenReview,
+                      style: OutlinedButton.styleFrom(foregroundColor: colors.accent, side: BorderSide(color: colors.accent)),
+                      child: const Text('Начать повторение'),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

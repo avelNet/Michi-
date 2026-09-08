@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'data/database.dart';
 import 'data/seed/content_seed.dart';
+import 'data/seed/srs_enrollment.dart';
 import 'features/roadmap/roadmap_screen.dart';
 
 void main() {
@@ -39,7 +40,7 @@ class _AppRootState extends State<_AppRoot> {
   void initState() {
     super.initState();
     _db = AppDatabase();
-    _ready = seedContentIfEmpty(_db);
+    _ready = seedContentIfEmpty(_db).then((_) => enrollAccessibleContentInSrs(_db, localUserId));
   }
 
   @override

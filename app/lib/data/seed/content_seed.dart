@@ -41,6 +41,20 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
           mode: InsertMode.insertOrIgnore,
         );
 
+    // ---- Типы упражнений --------------------------------------------
+    // MVP: один универсальный тип «переверни карточку и оцени себя» —
+    // подходит для любого вида контента (кана/кандзи/слово/частица).
+    // Остальные типы (аудирование, письмо и т.д.) добавляются сюда же
+    // по мере реализации соответствующих упражнений, без миграции схемы.
+    await db.into(db.exerciseTypes).insert(
+          ExerciseTypesCompanion.insert(
+            code: 'flip_recall',
+            pillar: 'reading',
+            labelRu: 'Вспомнить и перевернуть',
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+
     // ---- Кана ------------------------------------------------------
     var sortOrder = 0;
     final hiraganaIds = <String, int>{};
