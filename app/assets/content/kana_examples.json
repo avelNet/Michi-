@@ -1,0 +1,2165 @@
+[
+  {
+    "romaji": "a",
+    "script": "hiragana",
+    "char": "あ",
+    "words": [
+      {
+        "surface": "わあ",
+        "reading": "わあ",
+        "meanings_ru": [
+          "1) ура!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "あの",
+        "reading": "あの",
+        "meanings_ru": [
+          "[вон] тот",
+          "(ср.) {あのよう(～な)}, あののち, あのひと"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "a",
+    "script": "katakana",
+    "char": "ア",
+    "words": [
+      {
+        "surface": "アド",
+        "reading": "アド",
+        "meanings_ru": [
+          "актёр, выполняющий вторую роль (в театре Но)",
+          "((англ.) ad, (сокр. от) advertisement) объявление, анонс"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ペア",
+        "reading": "ペア",
+        "meanings_ru": [
+          "((англ.) pear) груша"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "i",
+    "script": "hiragana",
+    "char": "い",
+    "words": [
+      {
+        "surface": "おい",
+        "reading": "おい",
+        "meanings_ru": [
+          "послушай!, эй!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "かい",
+        "reading": "かい",
+        "meanings_ru": [
+          "(счётный суф. для деревьев)",
+          "(см.) か【か】 1"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "i",
+    "script": "katakana",
+    "char": "イ",
+    "words": [
+      {
+        "surface": "ブイ",
+        "reading": "ブイ",
+        "meanings_ru": [
+          "((англ.) buoy)",
+          "1) буй; буёк; [рейдовая] бочка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ゲイ",
+        "reading": "ゲイ",
+        "meanings_ru": [
+          "((англ.) gay) гей, гомосексуальный (о мужчинах).)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "u",
+    "script": "hiragana",
+    "char": "う",
+    "words": [
+      {
+        "surface": "ほう",
+        "reading": "ほう",
+        "meanings_ru": [
+          "(межд. удивления или одобрения) о!; так, так!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "こう",
+        "reading": "こう",
+        "meanings_ru": [
+          ": {～して} так, таким образом",
+          "{～した} такой"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "u",
+    "script": "katakana",
+    "char": "ウ",
+    "words": [
+      {
+        "surface": "ウブ",
+        "reading": "ウブ",
+        "meanings_ru": [
+          ": {～な} наивный, неискушённый"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "サウナ",
+        "reading": "サウナ",
+        "meanings_ru": [
+          "((фин.) sauna) сауна (финская баня).)"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "e",
+    "script": "hiragana",
+    "char": "え",
+    "words": [
+      {
+        "surface": "さえ",
+        "reading": "さえ",
+        "meanings_ru": [
+          "1) даже",
+          "2) (в условн. предл.) только"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "いいえ",
+        "reading": "いいえ",
+        "meanings_ru": [
+          "нет",
+          "(см.) いいえ"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "e",
+    "script": "katakana",
+    "char": "エ",
+    "words": [
+      {
+        "surface": "エア",
+        "reading": "エア",
+        "meanings_ru": [
+          "((англ.) air) воздух",
+          "воздух"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "エネ",
+        "reading": "エネ",
+        "meanings_ru": [
+          "энергия"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "o",
+    "script": "hiragana",
+    "char": "お",
+    "words": [
+      {
+        "surface": "おい",
+        "reading": "おい",
+        "meanings_ru": [
+          "послушай!, эй!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "おや",
+        "reading": "おや",
+        "meanings_ru": [
+          "(межд.) ах!, ой!, как!, вот ещё!, вот тебе на!"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "o",
+    "script": "katakana",
+    "char": "オ",
+    "words": [
+      {
+        "surface": "ネオ",
+        "reading": "ネオ",
+        "meanings_ru": [
+          "(в заимствованных словах) нео…"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "オラ",
+        "reading": "オラ",
+        "meanings_ru": [
+          "аура"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ka",
+    "script": "hiragana",
+    "char": "か",
+    "words": [
+      {
+        "surface": "かい",
+        "reading": "かい",
+        "meanings_ru": [
+          "(счётный суф. для деревьев)",
+          "(см.) か【か】 1"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "とか",
+        "reading": "とか",
+        "meanings_ru": [
+          "1) и",
+          "2) как будто"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ka",
+    "script": "katakana",
+    "char": "カ",
+    "words": [
+      {
+        "surface": "カー",
+        "reading": "カー",
+        "meanings_ru": [
+          "((англ.) car) автомашина; грузовой автомобиль; трамвай"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "メカ",
+        "reading": "メカ",
+        "meanings_ru": [
+          "механический2) механизм"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ki",
+    "script": "hiragana",
+    "char": "き",
+    "words": [
+      {
+        "surface": "べき",
+        "reading": "べき",
+        "meanings_ru": [
+          "((определит. форма кн. суф.) べし) нужно, следует"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "きゃっ",
+        "reading": "きゃっ",
+        "meanings_ru": [
+          "(ономат. см.) きゃっと"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ki",
+    "script": "katakana",
+    "char": "キ",
+    "words": [
+      {
+        "surface": "キス",
+        "reading": "キス",
+        "meanings_ru": [
+          "((англ.) kiss) поцелуй",
+          "{～する} целовать[ся]"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "キロ",
+        "reading": "キロ",
+        "meanings_ru": [
+          "(сокр.)",
+          "1) ((тж. уст.) 粁) километр"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ku",
+    "script": "hiragana",
+    "char": "く",
+    "words": [
+      {
+        "surface": "ざく",
+        "reading": "ざく",
+        "meanings_ru": [
+          "1) различные овощи для скияки; (см.) すきやき",
+          "2) древесный уголь низшего сорта"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "めく",
+        "reading": "めく",
+        "meanings_ru": [
+          "(суф. образования гл. и прил., обозначающих видимость качества)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ku",
+    "script": "katakana",
+    "char": "ク",
+    "words": [
+      {
+        "surface": "ミルク",
+        "reading": "ミルク",
+        "meanings_ru": [
+          "((англ.) milk) молоко"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "アクラ",
+        "reading": "アクラ",
+        "meanings_ru": [
+          "(г.) Аккра"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ke",
+    "script": "hiragana",
+    "char": "け",
+    "words": [
+      {
+        "surface": "ふけ",
+        "reading": "ふけ",
+        "meanings_ru": [
+          "перхоть"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "けり",
+        "reading": "けり",
+        "meanings_ru": [
+          "сероголовый чибис, Microsarcops cinereus (Blyth.)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ke",
+    "script": "katakana",
+    "char": "ケ",
+    "words": [
+      {
+        "surface": "ケア",
+        "reading": "ケア",
+        "meanings_ru": [
+          "((англ.) care)",
+          "1) внимание; осторожность"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "サイケ",
+        "reading": "サイケ",
+        "meanings_ru": [
+          "((англ.) psychedelic) (см.) サイケデリック",
+          "1) психоделяческий, галлюциногенный"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ko",
+    "script": "hiragana",
+    "char": "こ",
+    "words": [
+      {
+        "surface": "この",
+        "reading": "この",
+        "meanings_ru": [
+          "(ономат.)",
+          "1) бац"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "これ",
+        "reading": "これ",
+        "meanings_ru": [
+          "эй!, послушай!, вот"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ko",
+    "script": "katakana",
+    "char": "コ",
+    "words": [
+      {
+        "surface": "コマ",
+        "reading": "コマ",
+        "meanings_ru": [
+          "((англ.) coma) (фото) кома, сферическая аберрация наклонного пучка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ピコ",
+        "reading": "ピコ",
+        "meanings_ru": [
+          "пико-",
+          "10^-12"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "sa",
+    "script": "hiragana",
+    "char": "さ",
+    "words": [
+      {
+        "surface": "さぞ",
+        "reading": "さぞ",
+        "meanings_ru": [
+          "наверно, должно быть"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "さん",
+        "reading": "さん",
+        "meanings_ru": [
+          "(после имени собственного) господин, госпожа; (после имени нарицательного  персонифицирующий суффикс.)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "sa",
+    "script": "katakana",
+    "char": "サ",
+    "words": [
+      {
+        "surface": "サボ",
+        "reading": "サボ",
+        "meanings_ru": [
+          "(разг. см.) サボタージュ",
+          "((фр.) sabot) сабо (вид деревянной обуви).)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "サム",
+        "reading": "サム",
+        "meanings_ru": [
+          "((англ.) thumb) большой палец",
+          "{～インデックス} ((англ.) thumb index) (полигр.) указатель на обрезе (справочника, словаря и т. п.);) выемки с буквами алфавита на обрезе"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "shi",
+    "script": "hiragana",
+    "char": "し",
+    "words": [
+      {
+        "surface": "して",
+        "reading": "して",
+        "meanings_ru": [
+          "1) (в начале предложения) ну, итак",
+          "2): …として[は] в качестве, как"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "しか",
+        "reading": "しか",
+        "meanings_ru": [
+          "(частица с отриц.) только, всего только"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "shi",
+    "script": "katakana",
+    "char": "シ",
+    "words": [
+      {
+        "surface": "ロシア",
+        "reading": "ロシア",
+        "meanings_ru": [
+          "Россия"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "シーム",
+        "reading": "シーム",
+        "meanings_ru": [
+          "((англ.) seam) шов"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "su",
+    "script": "hiragana",
+    "char": "す",
+    "words": [
+      {
+        "surface": "すり",
+        "reading": "すり",
+        "meanings_ru": [
+          "1) ((тж.) 掏児) карманный вор, карманщик, воришка",
+          "2) мелкое воровство"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "どす",
+        "reading": "どす",
+        "meanings_ru": [
+          "1) кинжал (носимый за пазухой)",
+          "2) (перен.) проказа (болезнь)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "su",
+    "script": "katakana",
+    "char": "ス",
+    "words": [
+      {
+        "surface": "メス",
+        "reading": "メス",
+        "meanings_ru": [
+          "((нем.) Messer) скальпель"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "キス",
+        "reading": "キス",
+        "meanings_ru": [
+          "((англ.) kiss) поцелуй",
+          "{～する} целовать[ся]"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "se",
+    "script": "hiragana",
+    "char": "せ",
+    "words": [
+      {
+        "surface": "にせよ",
+        "reading": "にせよ",
+        "meanings_ru": [
+          "1) пусть [даже], хотя бы",
+          "2): …にせよ…にせよ взять ли (одно) или (другое)"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "ませる",
+        "reading": "ませる",
+        "meanings_ru": [
+          "быть преждевременно развитым",
+          "(ср.) ませた"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "se",
+    "script": "katakana",
+    "char": "セ",
+    "words": [
+      {
+        "surface": "リセ",
+        "reading": "リセ",
+        "meanings_ru": [
+          "((фр.) lycée) лицей"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "セル",
+        "reading": "セル",
+        "meanings_ru": [
+          "((нем.) Cer) (хим.) церий",
+          "((от фр.) serge) саржа"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "so",
+    "script": "hiragana",
+    "char": "そ",
+    "words": [
+      {
+        "surface": "こそ",
+        "reading": "こそ",
+        "meanings_ru": [
+          "именно, как раз; (иногда не переводится)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "その",
+        "reading": "その",
+        "meanings_ru": [
+          "1) (указ. мест.) этот, тот (находящийся в сфере интересов собеседника или недавно упомянутый)",
+          "2) тот самый"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "so",
+    "script": "katakana",
+    "char": "ソ",
+    "words": [
+      {
+        "surface": "ソロ",
+        "reading": "ソロ",
+        "meanings_ru": [
+          "((англ.) solo) соло"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ソイ",
+        "reading": "ソイ",
+        "meanings_ru": [
+          "((англ.) soy) соевый соус"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ta",
+    "script": "hiragana",
+    "char": "た",
+    "words": [
+      {
+        "surface": "べた",
+        "reading": "べた",
+        "meanings_ru": [
+          "бета"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ねた",
+        "reading": "ねた",
+        "meanings_ru": [
+          "((переставленные слоги слова) たね【種】) (жарг.)",
+          "1) что-нибудь новенькое (для газеты)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ta",
+    "script": "katakana",
+    "char": "タ",
+    "words": [
+      {
+        "surface": "タス",
+        "reading": "タス",
+        "meanings_ru": [
+          "((русск.) ТАСС) ТАСС"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "タブ",
+        "reading": "タブ",
+        "meanings_ru": [
+          "((сокр.) от (англ.) tabulation) табуляция"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "chi",
+    "script": "hiragana",
+    "char": "ち",
+    "words": [
+      {
+        "surface": "ちち",
+        "reading": "ちち",
+        "meanings_ru": [
+          "(ономат.:)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "まち",
+        "reading": "まち",
+        "meanings_ru": [
+          "вставка, клин (в платье и т. п.)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "chi",
+    "script": "katakana",
+    "char": "チ",
+    "words": [
+      {
+        "surface": "ポチ",
+        "reading": "ポチ",
+        "meanings_ru": [
+          "((от фр.) petit) собачка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "チリ",
+        "reading": "チリ",
+        "meanings_ru": [
+          "Чили"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "tsu",
+    "script": "hiragana",
+    "char": "つ",
+    "words": [
+      {
+        "surface": "つつ",
+        "reading": "つつ",
+        "meanings_ru": [
+          "(кн. суф. деепр. наст. вр.)",
+          "1) выражает одновременность двух действий, часто с уступительным оттенком ((ср.) …ながら)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "つと",
+        "reading": "つと",
+        "meanings_ru": [
+          "1) внезапно; резко",
+          "2) спокойно, серьёзно"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "tsu",
+    "script": "katakana",
+    "char": "ツ",
+    "words": [
+      {
+        "surface": "ツー",
+        "reading": "ツー",
+        "meanings_ru": [
+          "((англ.) two) два"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ツアー",
+        "reading": "ツアー",
+        "meanings_ru": [
+          "((англ.) tour)",
+          "1) туризм, тур, турне"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "te",
+    "script": "hiragana",
+    "char": "て",
+    "words": [
+      {
+        "surface": "して",
+        "reading": "して",
+        "meanings_ru": [
+          "1) (в начале предложения) ну, итак",
+          "2): …として[は] в качестве, как"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ても",
+        "reading": "ても",
+        "meanings_ru": [
+          "(межд.) о, какой; что за"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "te",
+    "script": "katakana",
+    "char": "テ",
+    "words": [
+      {
+        "surface": "パテ",
+        "reading": "パテ",
+        "meanings_ru": [
+          "((англ.) putty) оконная замазка; шпаклёвка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "テスト",
+        "reading": "テスト",
+        "meanings_ru": [
+          "((англ.) test) проверка, испытание; прослушивание (певцов и т. п.)",
+          "{～する} подвергать испытанию, проверять"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "to",
+    "script": "hiragana",
+    "char": "と",
+    "words": [
+      {
+        "surface": "とと",
+        "reading": "とと",
+        "meanings_ru": [
+          "(дет.) папочка",
+          "(дет.:) рыбка; птичка; курочка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "つと",
+        "reading": "つと",
+        "meanings_ru": [
+          "1) внезапно; резко",
+          "2) спокойно, серьёзно"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "to",
+    "script": "katakana",
+    "char": "ト",
+    "words": [
+      {
+        "surface": "スト",
+        "reading": "スト",
+        "meanings_ru": [
+          "((сокр.) ストライキ) забастовка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ゴト",
+        "reading": "ゴト",
+        "meanings_ru": [
+          "вместе с…"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "na",
+    "script": "hiragana",
+    "char": "な",
+    "words": [
+      {
+        "surface": "てな",
+        "reading": "てな",
+        "meanings_ru": [
+          "(прост. связ.:) 『済みません』てな事を言う сказать что-то вроде извините"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "なり",
+        "reading": "なり",
+        "meanings_ru": [
+          "(союз) либо… либо",
+          "как только"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "na",
+    "script": "katakana",
+    "char": "ナ",
+    "words": [
+      {
+        "surface": "アナ",
+        "reading": "アナ",
+        "meanings_ru": [
+          "((сокр. англ.) anarchist)",
+          "1) анархист"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ナチ",
+        "reading": "ナチ",
+        "meanings_ru": [
+          "((англ.) nazis) нацисты, фашисты",
+          "{～[の]} нацистский, фашистский"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ni",
+    "script": "hiragana",
+    "char": "に",
+    "words": [
+      {
+        "surface": "のに",
+        "reading": "のに",
+        "meanings_ru": [
+          "1) (союз) а; хотя, несмотря на [то, что]",
+          "2) (воскл. частица, выражает желание или подчёркивание)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "にたり",
+        "reading": "にたり",
+        "meanings_ru": [
+          "(ономат.:) にたりと笑う хмуро усмехаться"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ni",
+    "script": "katakana",
+    "char": "ニ",
+    "words": [
+      {
+        "surface": "ダニ",
+        "reading": "ダニ",
+        "meanings_ru": [
+          "(энт.) клещи (общее название); Acarina; Monomerosomata; Rhynchostomata"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ニンフ",
+        "reading": "ニンフ",
+        "meanings_ru": [
+          "((англ.) nymph) нимфа"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "nu",
+    "script": "hiragana",
+    "char": "ぬ",
+    "words": [
+      {
+        "surface": "ぬめる",
+        "reading": "ぬめる",
+        "meanings_ru": [
+          "1) быть скользким",
+          "2) шататься, шляться"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "ぬくぬく",
+        "reading": "ぬくぬく",
+        "meanings_ru": [
+          "1) уютно и тепло",
+          "2) удобно для себя"
+        ],
+        "len": 4
+      }
+    ]
+  },
+  {
+    "romaji": "nu",
+    "script": "katakana",
+    "char": "ヌ",
+    "words": [
+      {
+        "surface": "ヌード",
+        "reading": "ヌード",
+        "meanings_ru": [
+          "((фр.) nude) нагота"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "カヌー",
+        "reading": "カヌー",
+        "meanings_ru": [
+          "((англ.) canoe) (спорт.) каноэ"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ne",
+    "script": "hiragana",
+    "char": "ね",
+    "words": [
+      {
+        "surface": "ねた",
+        "reading": "ねた",
+        "meanings_ru": [
+          "((переставленные слоги слова) たね【種】) (жарг.)",
+          "1) что-нибудь новенькое (для газеты)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ねんね",
+        "reading": "ねんね",
+        "meanings_ru": [
+          "(дет.)",
+          "1) ((тж.) ねんねえ) младенец; (обр.) младенец, совсем ребёнок"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ne",
+    "script": "katakana",
+    "char": "ネ",
+    "words": [
+      {
+        "surface": "ネジ",
+        "reading": "ネジ",
+        "meanings_ru": [
+          "1) винт; шуруп; болт; гайка",
+          "2) кран (напр. водопроводный)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ネガ",
+        "reading": "ネガ",
+        "meanings_ru": [
+          "((от англ.) negative) негатив"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "no",
+    "script": "hiragana",
+    "char": "の",
+    "words": [
+      {
+        "surface": "この",
+        "reading": "この",
+        "meanings_ru": [
+          "(ономат.)",
+          "1) бац"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "どの",
+        "reading": "どの",
+        "meanings_ru": [
+          "который",
+          "какой"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "no",
+    "script": "katakana",
+    "char": "ノ",
+    "words": [
+      {
+        "surface": "ノブ",
+        "reading": "ノブ",
+        "meanings_ru": [
+          "((англ.) knob) (тех.) ручка, головка; (эл.) кнопка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ノバ",
+        "reading": "ノバ",
+        "meanings_ru": [
+          "новая звезда"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ha",
+    "script": "hiragana",
+    "char": "は",
+    "words": [
+      {
+        "surface": "はい",
+        "reading": "はい",
+        "meanings_ru": [
+          "1) да, так, слушаю[сь]; хорошо; здесь (при перекличке)",
+          "2) ну, послушайте!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "はあ",
+        "reading": "はあ",
+        "meanings_ru": [
+          "1) да; хорошо",
+          "2) ах!"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ha",
+    "script": "katakana",
+    "char": "ハ",
+    "words": [
+      {
+        "surface": "ロハ",
+        "reading": "ロハ",
+        "meanings_ru": [
+          ": {～で} (прост.) даром, бесплатно ((слово-каламбур, основанное на графическом разложении иероглифа) 只 тада)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ハム",
+        "reading": "ハム",
+        "meanings_ru": [
+          "((англ.) ham) ветчина"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "hi",
+    "script": "hiragana",
+    "char": "ひ",
+    "words": [
+      {
+        "surface": "ひび",
+        "reading": "ひび",
+        "meanings_ru": [
+          "трещина"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ひらり",
+        "reading": "ひらり",
+        "meanings_ru": [
+          ": {～[と]} (ономат.) проворно; легко"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "hi",
+    "script": "katakana",
+    "char": "ヒ",
+    "words": [
+      {
+        "surface": "ヒレ",
+        "reading": "ヒレ",
+        "meanings_ru": [
+          "((фр.) fillet) филе"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ヒス",
+        "reading": "ヒス",
+        "meanings_ru": [
+          "(разг. см.) ヒステリー"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "fu",
+    "script": "hiragana",
+    "char": "ふ",
+    "words": [
+      {
+        "surface": "ふけ",
+        "reading": "ふけ",
+        "meanings_ru": [
+          "перхоть"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ふん",
+        "reading": "ふん",
+        "meanings_ru": [
+          "хм!, тьфу!, фи!"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "fu",
+    "script": "katakana",
+    "char": "フ",
+    "words": [
+      {
+        "surface": "パフ",
+        "reading": "パフ",
+        "meanings_ru": [
+          "((англ.) puff) пуховка (для пудры)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ファ",
+        "reading": "ファ",
+        "meanings_ru": [
+          "(муз.) фа"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "he",
+    "script": "hiragana",
+    "char": "へ",
+    "words": [
+      {
+        "surface": "へん",
+        "reading": "へん",
+        "meanings_ru": [
+          "гм"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "へぼ",
+        "reading": "へぼ",
+        "meanings_ru": [
+          "(разг.:) ～[な]",
+          "1) неумелый, неопытный, плохой"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "he",
+    "script": "katakana",
+    "char": "ヘ",
+    "words": [
+      {
+        "surface": "ヘマ",
+        "reading": "ヘマ",
+        "meanings_ru": [
+          "(разг.)",
+          "1) грубая ошибка, оплошность"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ヘット",
+        "reading": "ヘット",
+        "meanings_ru": [
+          "((голл.) vet) жир; сало"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ho",
+    "script": "hiragana",
+    "char": "ほ",
+    "words": [
+      {
+        "surface": "ほう",
+        "reading": "ほう",
+        "meanings_ru": [
+          "(межд. удивления или одобрения) о!; так, так!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ほら",
+        "reading": "ほら",
+        "meanings_ru": [
+          "(межд.) о!, смотрите!, да вот!; ведь"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ho",
+    "script": "katakana",
+    "char": "ホ",
+    "words": [
+      {
+        "surface": "ホープ",
+        "reading": "ホープ",
+        "meanings_ru": [
+          "((англ.) hope)",
+          "1) надежда"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "エホバ",
+        "reading": "エホバ",
+        "meanings_ru": [
+          "((англ.) Iehovah) Иегова"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ma",
+    "script": "hiragana",
+    "char": "ま",
+    "words": [
+      {
+        "surface": "まま",
+        "reading": "まま",
+        "meanings_ru": [
+          "1): {～[に]} так, как есть; в том же положении",
+          "2) согласно (чему-л.)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "まで",
+        "reading": "まで",
+        "meanings_ru": [
+          "1) до",
+          "2) до того, что…"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ma",
+    "script": "katakana",
+    "char": "マ",
+    "words": [
+      {
+        "surface": "コマ",
+        "reading": "コマ",
+        "meanings_ru": [
+          "((англ.) coma) (фото) кома, сферическая аберрация наклонного пучка"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ヘマ",
+        "reading": "ヘマ",
+        "meanings_ru": [
+          "(разг.)",
+          "1) грубая ошибка, оплошность"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "mi",
+    "script": "hiragana",
+    "char": "み",
+    "words": [
+      {
+        "surface": "ぐるみ",
+        "reading": "ぐるみ",
+        "meanings_ru": [
+          "[вместе] с (чем-л.)"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "みだりに",
+        "reading": "みだりに",
+        "meanings_ru": [
+          "а) на обум, как попало; не разбирая; б) без уважительной причины; зря; необдуманно"
+        ],
+        "len": 4
+      }
+    ]
+  },
+  {
+    "romaji": "mi",
+    "script": "katakana",
+    "char": "ミ",
+    "words": [
+      {
+        "surface": "グミ",
+        "reading": "グミ",
+        "meanings_ru": [
+          "(зоол.) морской огурец, кукумария щетинистая, Cucumaria echinata (Marenz (в сухом виде идёт на удобрения)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ミス",
+        "reading": "ミス",
+        "meanings_ru": [
+          "((сокр.) ミステーク) оплошность; промах; невнимательность",
+          "((англ.) miss) мисс; девушка, незамужняя молодая женщина"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "mu",
+    "script": "hiragana",
+    "char": "む",
+    "words": [
+      {
+        "surface": "くすむ",
+        "reading": "くすむ",
+        "meanings_ru": [
+          "1) быть серьёзным (о ком-л.)",
+          "2) быть тусклым (неярким, некричащим); быть темноватым"
+        ],
+        "len": 3
+      },
+      {
+        "surface": "むんず",
+        "reading": "むんず",
+        "meanings_ru": [
+          "крепко; резко"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "mu",
+    "script": "katakana",
+    "char": "ム",
+    "words": [
+      {
+        "surface": "ジム",
+        "reading": "ジム",
+        "meanings_ru": [
+          "((сокр. англ.) gymnasium) школа физкультуры; гимнастический зал, спортзал"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ガム",
+        "reading": "ガム",
+        "meanings_ru": [
+          "((амер.) gum) жевательная резинка"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "me",
+    "script": "hiragana",
+    "char": "め",
+    "words": [
+      {
+        "surface": "めく",
+        "reading": "めく",
+        "meanings_ru": [
+          "(суф. образования гл. и прил., обозначающих видимость качества)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "おしめ",
+        "reading": "おしめ",
+        "meanings_ru": [
+          "пелёнка",
+          "пелёнки"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "me",
+    "script": "katakana",
+    "char": "メ",
+    "words": [
+      {
+        "surface": "メス",
+        "reading": "メス",
+        "meanings_ru": [
+          "((нем.) Messer) скальпель"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ロメ",
+        "reading": "ロメ",
+        "meanings_ru": [
+          "(г.) Ломе"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "mo",
+    "script": "hiragana",
+    "char": "も",
+    "words": [
+      {
+        "surface": "ても",
+        "reading": "ても",
+        "meanings_ru": [
+          "(межд.) о, какой; что за"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "とも",
+        "reading": "とも",
+        "meanings_ru": [
+          "1) (в конце предл.) конечно",
+          "2) (при чередовании глаголов в положит. и отрицат. форме) то ли"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "mo",
+    "script": "katakana",
+    "char": "モ",
+    "words": [
+      {
+        "surface": "メモ",
+        "reading": "メモ",
+        "meanings_ru": [
+          "((англ.) memo) заметки, запись [на память]"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "デモ",
+        "reading": "デモ",
+        "meanings_ru": [
+          "((сокр. англ.) demonstration) демонстрация"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ya",
+    "script": "hiragana",
+    "char": "や",
+    "words": [
+      {
+        "surface": "やれ",
+        "reading": "やれ",
+        "meanings_ru": [
+          "(межд.) о!, ах!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "やや",
+        "reading": "やや",
+        "meanings_ru": [
+          "1) до некоторой степени, немного",
+          "2) порядочно"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ya",
+    "script": "katakana",
+    "char": "ヤ",
+    "words": [
+      {
+        "surface": "マヤ",
+        "reading": "マヤ",
+        "meanings_ru": [
+          "майя (народ)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ヤング",
+        "reading": "ヤング",
+        "meanings_ru": [
+          "((англ.) young)",
+          "1) юный, молодой"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "yu",
+    "script": "hiragana",
+    "char": "ゆ",
+    "words": [
+      {
+        "surface": "ゆた",
+        "reading": "ゆた",
+        "meanings_ru": [
+          "Юта"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ゆとり",
+        "reading": "ゆとり",
+        "meanings_ru": [
+          "1) свободное место, свободное время; отсутствие стеснённости; простор",
+          "2) излишек"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "yu",
+    "script": "katakana",
+    "char": "ユ",
+    "words": [
+      {
+        "surface": "ユー",
+        "reading": "ユー",
+        "meanings_ru": [
+          "((англ.) you) ты, вы"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ユダヤ",
+        "reading": "ユダヤ",
+        "meanings_ru": [
+          ": {～[の]} еврейский"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "yo",
+    "script": "hiragana",
+    "char": "よ",
+    "words": [
+      {
+        "surface": "そよ",
+        "reading": "そよ",
+        "meanings_ru": [
+          "(ономат.):"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "よる",
+        "reading": "よる",
+        "meanings_ru": [
+          "1) зависеть",
+          "2) основываться (на чём-л.)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "yo",
+    "script": "katakana",
+    "char": "ヨ",
+    "words": [
+      {
+        "surface": "ヨガ",
+        "reading": "ヨガ",
+        "meanings_ru": [
+          "йога",
+          "((санскр.) йога)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ヨット",
+        "reading": "ヨット",
+        "meanings_ru": [
+          "((англ.) yacht) яхта"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "ra",
+    "script": "hiragana",
+    "char": "ら",
+    "words": [
+      {
+        "surface": "ぼら",
+        "reading": "ぼら",
+        "meanings_ru": [
+          "кефаль обыкновенная, лобан, Mugil cephalus (L.)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "こら",
+        "reading": "こら",
+        "meanings_ru": [
+          "эй!, постой!, послушай!, ну!"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ra",
+    "script": "katakana",
+    "char": "ラ",
+    "words": [
+      {
+        "surface": "ラブ",
+        "reading": "ラブ",
+        "meanings_ru": [
+          "((англ.) love)",
+          "1) любовь"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "リラ",
+        "reading": "リラ",
+        "meanings_ru": [
+          "((фр.) lilas) сирень",
+          "((ит.) lira) лира (денежная единица)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ri",
+    "script": "hiragana",
+    "char": "り",
+    "words": [
+      {
+        "surface": "すり",
+        "reading": "すり",
+        "meanings_ru": [
+          "1) ((тж.) 掏児) карманный вор, карманщик, воришка",
+          "2) мелкое воровство"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "けり",
+        "reading": "けり",
+        "meanings_ru": [
+          "сероголовый чибис, Microsarcops cinereus (Blyth.)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ri",
+    "script": "katakana",
+    "char": "リ",
+    "words": [
+      {
+        "surface": "チリ",
+        "reading": "チリ",
+        "meanings_ru": [
+          "Чили"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "リセ",
+        "reading": "リセ",
+        "meanings_ru": [
+          "((фр.) lycée) лицей"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ru",
+    "script": "hiragana",
+    "char": "る",
+    "words": [
+      {
+        "surface": "たる",
+        "reading": "たる",
+        "meanings_ru": [
+          "((опред. форма кн. связки) たり) являющийся"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ずる",
+        "reading": "ずる",
+        "meanings_ru": [
+          "1) хитрость, уловка",
+          "{～をやる} плутовать, обманывать; (спорт.) нечестно играть; (школ.) списывать тайком"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ru",
+    "script": "katakana",
+    "char": "ル",
+    "words": [
+      {
+        "surface": "ゲル",
+        "reading": "ゲル",
+        "meanings_ru": [
+          "((англ.) gel) (хим.) гель, студенистый осадок"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ベル",
+        "reading": "ベル",
+        "meanings_ru": [
+          "((англ.) bell)",
+          "1) звонок"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "re",
+    "script": "hiragana",
+    "char": "れ",
+    "words": [
+      {
+        "surface": "やれ",
+        "reading": "やれ",
+        "meanings_ru": [
+          "(межд.) о!, ах!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "これ",
+        "reading": "これ",
+        "meanings_ru": [
+          "эй!, послушай!, вот"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "re",
+    "script": "katakana",
+    "char": "レ",
+    "words": [
+      {
+        "surface": "レイ",
+        "reading": "レイ",
+        "meanings_ru": [
+          "((англ.) lei) гирлянда цветов (надеваемая на шею гостю)"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ヒレ",
+        "reading": "ヒレ",
+        "meanings_ru": [
+          "((фр.) fillet) филе"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ro",
+    "script": "hiragana",
+    "char": "ろ",
+    "words": [
+      {
+        "surface": "とろ",
+        "reading": "とろ",
+        "meanings_ru": [
+          "(разг.)",
+          "1) жирное мясо тунца"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "のろ",
+        "reading": "のろ",
+        "meanings_ru": [
+          "известковый раствор (для побелки)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "ro",
+    "script": "katakana",
+    "char": "ロ",
+    "words": [
+      {
+        "surface": "ロメ",
+        "reading": "ロメ",
+        "meanings_ru": [
+          "(г.) Ломе"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ロム",
+        "reading": "ロム",
+        "meanings_ru": [
+          "((англ.) ROM) (вчт.) ПЗУ (постоянное запоминающее устройство; память, доступная только для чтения)"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "wa",
+    "script": "hiragana",
+    "char": "わ",
+    "words": [
+      {
+        "surface": "わあ",
+        "reading": "わあ",
+        "meanings_ru": [
+          "1) ура!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "すわ",
+        "reading": "すわ",
+        "meanings_ru": [
+          "ах!"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "wa",
+    "script": "katakana",
+    "char": "ワ",
+    "words": [
+      {
+        "surface": "ワン",
+        "reading": "ワン",
+        "meanings_ru": [
+          "((англ.) one) один"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "タワー",
+        "reading": "タワー",
+        "meanings_ru": [
+          "((англ.) tower) башня"
+        ],
+        "len": 3
+      }
+    ]
+  },
+  {
+    "romaji": "wo",
+    "script": "hiragana",
+    "char": "を",
+    "words": [
+      {
+        "surface": "てにをは",
+        "reading": "てにをは",
+        "meanings_ru": [
+          "частицы",
+          "послелоги"
+        ],
+        "len": 4
+      }
+    ]
+  },
+  {
+    "romaji": "wo",
+    "script": "katakana",
+    "char": "ヲ",
+    "words": []
+  },
+  {
+    "romaji": "n",
+    "script": "hiragana",
+    "char": "ん",
+    "words": [
+      {
+        "surface": "ふん",
+        "reading": "ふん",
+        "meanings_ru": [
+          "хм!, тьфу!, фи!"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "うん",
+        "reading": "うん",
+        "meanings_ru": [
+          "1) да",
+          "2) ох"
+        ],
+        "len": 2
+      }
+    ]
+  },
+  {
+    "romaji": "n",
+    "script": "katakana",
+    "char": "ン",
+    "words": [
+      {
+        "surface": "ペン",
+        "reading": "ペン",
+        "meanings_ru": [
+          "((англ.) pen) перо"
+        ],
+        "len": 2
+      },
+      {
+        "surface": "ピン",
+        "reading": "ピン",
+        "meanings_ru": [
+          "((англ.) pin)",
+          "1) булавка"
+        ],
+        "len": 2
+      }
+    ]
+  }
+]

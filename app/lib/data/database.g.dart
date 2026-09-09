@@ -3007,6 +3007,299 @@ class WordKanjiCompanion extends UpdateCompanion<WordKanjiData> {
   }
 }
 
+class WordKana extends Table with TableInfo<WordKana, WordKanaData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  WordKana(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordContentItemIdMeta = const VerificationMeta(
+    'wordContentItemId',
+  );
+  late final GeneratedColumn<int> wordContentItemId = GeneratedColumn<int>(
+    'word_content_item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES words(content_item_id)',
+  );
+  static const VerificationMeta _kanaContentItemIdMeta = const VerificationMeta(
+    'kanaContentItemId',
+  );
+  late final GeneratedColumn<int> kanaContentItemId = GeneratedColumn<int>(
+    'kana_content_item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES kana(content_item_id)',
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    wordContentItemId,
+    kanaContentItemId,
+    position,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'word_kana';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WordKanaData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('word_content_item_id')) {
+      context.handle(
+        _wordContentItemIdMeta,
+        wordContentItemId.isAcceptableOrUnknown(
+          data['word_content_item_id']!,
+          _wordContentItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_wordContentItemIdMeta);
+    }
+    if (data.containsKey('kana_content_item_id')) {
+      context.handle(
+        _kanaContentItemIdMeta,
+        kanaContentItemId.isAcceptableOrUnknown(
+          data['kana_content_item_id']!,
+          _kanaContentItemIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_kanaContentItemIdMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {
+    wordContentItemId,
+    kanaContentItemId,
+  };
+  @override
+  WordKanaData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WordKanaData(
+      wordContentItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}word_content_item_id'],
+      )!,
+      kanaContentItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}kana_content_item_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
+  }
+
+  @override
+  WordKana createAlias(String alias) {
+    return WordKana(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const [
+    'PRIMARY KEY(word_content_item_id, kana_content_item_id)',
+  ];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class WordKanaData extends DataClass implements Insertable<WordKanaData> {
+  final int wordContentItemId;
+  final int kanaContentItemId;
+  final int position;
+  const WordKanaData({
+    required this.wordContentItemId,
+    required this.kanaContentItemId,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['word_content_item_id'] = Variable<int>(wordContentItemId);
+    map['kana_content_item_id'] = Variable<int>(kanaContentItemId);
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  WordKanaCompanion toCompanion(bool nullToAbsent) {
+    return WordKanaCompanion(
+      wordContentItemId: Value(wordContentItemId),
+      kanaContentItemId: Value(kanaContentItemId),
+      position: Value(position),
+    );
+  }
+
+  factory WordKanaData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WordKanaData(
+      wordContentItemId: serializer.fromJson<int>(json['word_content_item_id']),
+      kanaContentItemId: serializer.fromJson<int>(json['kana_content_item_id']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'word_content_item_id': serializer.toJson<int>(wordContentItemId),
+      'kana_content_item_id': serializer.toJson<int>(kanaContentItemId),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  WordKanaData copyWith({
+    int? wordContentItemId,
+    int? kanaContentItemId,
+    int? position,
+  }) => WordKanaData(
+    wordContentItemId: wordContentItemId ?? this.wordContentItemId,
+    kanaContentItemId: kanaContentItemId ?? this.kanaContentItemId,
+    position: position ?? this.position,
+  );
+  WordKanaData copyWithCompanion(WordKanaCompanion data) {
+    return WordKanaData(
+      wordContentItemId: data.wordContentItemId.present
+          ? data.wordContentItemId.value
+          : this.wordContentItemId,
+      kanaContentItemId: data.kanaContentItemId.present
+          ? data.kanaContentItemId.value
+          : this.kanaContentItemId,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WordKanaData(')
+          ..write('wordContentItemId: $wordContentItemId, ')
+          ..write('kanaContentItemId: $kanaContentItemId, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(wordContentItemId, kanaContentItemId, position);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WordKanaData &&
+          other.wordContentItemId == this.wordContentItemId &&
+          other.kanaContentItemId == this.kanaContentItemId &&
+          other.position == this.position);
+}
+
+class WordKanaCompanion extends UpdateCompanion<WordKanaData> {
+  final Value<int> wordContentItemId;
+  final Value<int> kanaContentItemId;
+  final Value<int> position;
+  final Value<int> rowid;
+  const WordKanaCompanion({
+    this.wordContentItemId = const Value.absent(),
+    this.kanaContentItemId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WordKanaCompanion.insert({
+    required int wordContentItemId,
+    required int kanaContentItemId,
+    required int position,
+    this.rowid = const Value.absent(),
+  }) : wordContentItemId = Value(wordContentItemId),
+       kanaContentItemId = Value(kanaContentItemId),
+       position = Value(position);
+  static Insertable<WordKanaData> custom({
+    Expression<int>? wordContentItemId,
+    Expression<int>? kanaContentItemId,
+    Expression<int>? position,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (wordContentItemId != null) 'word_content_item_id': wordContentItemId,
+      if (kanaContentItemId != null) 'kana_content_item_id': kanaContentItemId,
+      if (position != null) 'position': position,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WordKanaCompanion copyWith({
+    Value<int>? wordContentItemId,
+    Value<int>? kanaContentItemId,
+    Value<int>? position,
+    Value<int>? rowid,
+  }) {
+    return WordKanaCompanion(
+      wordContentItemId: wordContentItemId ?? this.wordContentItemId,
+      kanaContentItemId: kanaContentItemId ?? this.kanaContentItemId,
+      position: position ?? this.position,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (wordContentItemId.present) {
+      map['word_content_item_id'] = Variable<int>(wordContentItemId.value);
+    }
+    if (kanaContentItemId.present) {
+      map['kana_content_item_id'] = Variable<int>(kanaContentItemId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WordKanaCompanion(')
+          ..write('wordContentItemId: $wordContentItemId, ')
+          ..write('kanaContentItemId: $kanaContentItemId, ')
+          ..write('position: $position, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class Particles extends Table with TableInfo<Particles, Particle> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -9521,6 +9814,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final KanjiRadicals kanjiRadicals = KanjiRadicals(this);
   late final Words words = Words(this);
   late final WordKanji wordKanji = WordKanji(this);
+  late final WordKana wordKana = WordKana(this);
   late final Particles particles = Particles(this);
   late final GrammarPoints grammarPoints = GrammarPoints(this);
   late final Sentences sentences = Sentences(this);
@@ -9561,6 +9855,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     kanjiRadicals,
     words,
     wordKanji,
+    wordKana,
     particles,
     grammarPoints,
     sentences,
@@ -12475,6 +12770,140 @@ typedef $WordKanjiProcessedTableManager =
       $WordKanjiUpdateCompanionBuilder,
       (WordKanjiData, BaseReferences<_$AppDatabase, WordKanji, WordKanjiData>),
       WordKanjiData,
+      PrefetchHooks Function()
+    >;
+typedef $WordKanaCreateCompanionBuilder = WordKanaCompanion Function({
+  required int wordContentItemId,
+  required int kanaContentItemId,
+  required int position,
+  Value<int> rowid,
+});
+typedef $WordKanaUpdateCompanionBuilder = WordKanaCompanion Function({
+  Value<int> wordContentItemId,
+  Value<int> kanaContentItemId,
+  Value<int> position,
+  Value<int> rowid,
+});
+
+class $WordKanaFilterComposer extends Composer<_$AppDatabase, WordKana> {
+  $WordKanaFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $WordKanaOrderingComposer extends Composer<_$AppDatabase, WordKana> {
+  $WordKanaOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $WordKanaAnnotationComposer extends Composer<_$AppDatabase, WordKana> {
+  $WordKanaAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+}
+
+class $WordKanaTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          WordKana,
+          WordKanaData,
+          $WordKanaFilterComposer,
+          $WordKanaOrderingComposer,
+          $WordKanaAnnotationComposer,
+          $WordKanaCreateCompanionBuilder,
+          $WordKanaUpdateCompanionBuilder,
+          (WordKanaData, BaseReferences<_$AppDatabase, WordKana, WordKanaData>),
+          WordKanaData,
+          PrefetchHooks Function()
+        > {
+  $WordKanaTableManager(_$AppDatabase db, WordKana table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $WordKanaFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $WordKanaOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $WordKanaAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> wordContentItemId = const Value.absent(),
+                Value<int> kanaContentItemId = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WordKanaCompanion(
+                wordContentItemId: wordContentItemId,
+                kanaContentItemId: kanaContentItemId,
+                position: position,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int wordContentItemId,
+                required int kanaContentItemId,
+                required int position,
+                Value<int> rowid = const Value.absent(),
+              }) => WordKanaCompanion.insert(
+                wordContentItemId: wordContentItemId,
+                kanaContentItemId: kanaContentItemId,
+                position: position,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<WordKana, WordKanaData>(table),
+                  BaseReferences<_$AppDatabase, WordKana, WordKanaData>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $WordKanaProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      WordKana,
+      WordKanaData,
+      $WordKanaFilterComposer,
+      $WordKanaOrderingComposer,
+      $WordKanaAnnotationComposer,
+      $WordKanaCreateCompanionBuilder,
+      $WordKanaUpdateCompanionBuilder,
+      (WordKanaData, BaseReferences<_$AppDatabase, WordKana, WordKanaData>),
+      WordKanaData,
       PrefetchHooks Function()
     >;
 typedef $ParticlesCreateCompanionBuilder = ParticlesCompanion Function({
@@ -19062,6 +19491,8 @@ class $AppDatabaseManager {
   $WordsTableManager get words => $WordsTableManager(_db, _db.words);
   $WordKanjiTableManager get wordKanji =>
       $WordKanjiTableManager(_db, _db.wordKanji);
+  $WordKanaTableManager get wordKana =>
+      $WordKanaTableManager(_db, _db.wordKana);
   $ParticlesTableManager get particles =>
       $ParticlesTableManager(_db, _db.particles);
   $GrammarPointsTableManager get grammarPoints =>

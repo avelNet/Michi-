@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../data/database.dart';
 import '../../data/seed/content_seed.dart';
 import '../../theme/app_theme.dart';
+import '../kana_reference/kana_reference_screen.dart';
 import '../lesson/lesson_screen.dart';
 import '../review/review_screen.dart';
 import 'roadmap_repository.dart';
@@ -66,7 +67,11 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
           final data = snapshot.data!;
           return Row(
             children: [
-              _NavRail(colors: colors, onOpenReview: () => _openReview(kanjiOnly: _showKanjiPath)),
+              _NavRail(
+                colors: colors,
+                onOpenReview: () => _openReview(kanjiOnly: _showKanjiPath),
+                onOpenKana: _openKanaReference,
+              ),
               Expanded(child: _buildPathArea(colors, data)),
               _Sidebar(
                 colors: colors,
@@ -86,6 +91,12 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
       MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db, kanjiOnly: kanjiOnly)),
     );
     setState(() => _future = _load());
+  }
+
+  Future<void> _openKanaReference() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => KanaReferenceScreen(db: widget.db)),
+    );
   }
 
   Future<void> _openLesson(RoadmapUnit unit) async {
@@ -706,14 +717,15 @@ class _PathSwitcher extends StatelessWidget {
 class _NavRail extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onOpenReview;
-  const _NavRail({required this.colors, required this.onOpenReview});
+  final VoidCallback onOpenKana;
+  const _NavRail({required this.colors, required this.onOpenReview, required this.onOpenKana});
 
   @override
   Widget build(BuildContext context) {
     final icons = [
       (Icons.map_outlined, 'Дорожная карта', true, null),
       (Icons.style_outlined, 'Повторение', false, onOpenReview),
-      (Icons.menu_book_outlined, 'Библиотека (скоро)', false, null),
+      (Icons.grid_view_outlined, 'Кана — справочник', false, onOpenKana),
       (Icons.bar_chart_outlined, 'Статистика (скоро)', false, null),
     ];
     return Container(

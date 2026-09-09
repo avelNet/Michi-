@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../database.dart';
+import 'kana_import.dart';
 import 'kanji_import.dart';
 
 /// Единственный локальный профиль на устройстве до появления
@@ -97,6 +98,12 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
           );
       katakanaIds[romaji] = kataContentId;
     }
+
+    // Примеры-слова для каны — тот же принцип "видно в контексте", что
+    // и для кандзи. НЕ добавляются в unit_items (иначе юнит из 46 знаков
+    // раздулся бы до ~90 карточек) — только контекст на карточке самой
+    // каны, см. RoadmapRepository/ReviewRepository.
+    await importKanaExamples(db);
 
     // ---- Кандзи + слова (в связке, не по отдельности) ---------------
     // Реальные данные, не выдуманные: список кандзи и частотность —

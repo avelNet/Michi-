@@ -98,6 +98,16 @@ CREATE TABLE word_kanji (
   PRIMARY KEY (word_content_item_id, kanji_content_item_id)
 );
 
+-- То же самое, но для каны: слово-пример, где встречается конкретный
+-- знак хираганы/катаканы — тот же принцип "не в отрыве от контекста",
+-- только для азбуки, а не для кандзи.
+CREATE TABLE word_kana (
+  word_content_item_id INTEGER NOT NULL REFERENCES words(content_item_id),
+  kana_content_item_id  INTEGER NOT NULL REFERENCES kana(content_item_id),
+  position               INTEGER NOT NULL,
+  PRIMARY KEY (word_content_item_id, kana_content_item_id)
+);
+
 
 -- ---- Частицы --------------------------------------------------------
 CREATE TABLE particles (

@@ -81,7 +81,8 @@ class ReviewRepository {
         final k = await (db.select(db.kana)..where((t) => t.contentItemId.equals(contentItemId)))
             .getSingleOrNull();
         if (k == null) return null;
-        return (k.char, k.romaji);
+        final example = await _kanaExample(contentItemId);
+        return (k.char, example == null ? k.romaji : '${k.romaji}\n$example');
       case 'kanji':
         final k = await (db.select(db.kanji)..where((t) => t.contentItemId.equals(contentItemId)))
             .getSingleOrNull();
@@ -104,6 +105,18 @@ class ReviewRepository {
       default:
         return null;
     }
+  }
+
+  Future<String?> _kanaExample(int kanaContentItemId) async {
+    final query = db.select(db.wordKana).join([
+      innerJoin(db.words, db.words.contentItemId.equalsExp(db.wordKana.wordContentItemId)),
+    ])
+      ..where(db.wordKana.kanaContentItemId.equals(kanaContentItemId))
+      ..limit(1);
+    final row = await query.getSingleOrNull();
+    if (row == null) return null;
+    final w = row.readTable(db.words);
+    return '${w.surfaceForm} — ${_joinJsonArray(w.meaningsRu)}';
   }
 
   List<String> _parseJsonArray(String jsonArray) {

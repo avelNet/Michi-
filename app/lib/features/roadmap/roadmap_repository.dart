@@ -139,7 +139,7 @@ class RoadmapRepository {
       switch (ci.kind) {
         case 'kana':
           final k = await (db.select(db.kana)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
-          items.add(LessonItem(contentItemId: ci.id, front: k.char, back: k.romaji, theory: null));
+          items.add(LessonItem(contentItemId: ci.id, front: k.char, back: k.romaji, theory: await _kanaExamples(ci.id)));
         case 'kanji':
           final k = await (db.select(db.kanji)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
           final onRu = k.onYomi != null ? _joinReadingsWithRomaji(k.onYomi!) : null;
@@ -192,6 +192,24 @@ class RoadmapRepository {
       return '${k.char} (${_joinJsonArray(k.meaningsRu)})';
     });
     return parts.join(' + ');
+  }
+
+  /// Слова-примеры, где встречается конкретный знак каны — чтобы символ
+  /// был виден не абстрактно, а в реальном слове.
+  Future<String?> _kanaExamples(int kanaContentItemId) async {
+    final query = db.select(db.wordKana).join([
+      innerJoin(db.words, db.words.contentItemId.equalsExp(db.wordKana.wordContentItemId)),
+    ])
+      ..where(db.wordKana.kanaContentItemId.equals(kanaContentItemId))
+      ..limit(2);
+    final rows = await query.get();
+    if (rows.isEmpty) return null;
+
+    final lines = rows.map((row) {
+      final w = row.readTable(db.words);
+      return '${w.surfaceForm} — ${_joinJsonArray(w.meaningsRu)}';
+    });
+    return lines.join('\n');
   }
 
   List<String> _parseJsonArray(String jsonArray) {
