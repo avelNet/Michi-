@@ -152,79 +152,80 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
 
     final pathHeight = points.isEmpty ? 400.0 : points.last.dy + 140;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(40, 24, 40, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const HintBanner(
-                hintKey: HintKeys.roadmap,
-                title: 'Это ваш маршрут обучения',
-                body: 'Идите по узлам сверху вниз. Каждый узел — короткий урок '
-                    '(теория + практика), после которого его карточки попадают '
-                    'в Повторение.',
-                bullets: [
-                  'Переключатель «Основной путь / Кандзи» — два параллельных трека, не блокируют друг друга',
-                  'Замок на узле — сначала нужно пройти то, что от него зависит',
-                  'Справа: серия дней, сколько карточек ждёт повторения, прогресс по JLPT',
-                ],
-              ),
-              Text(
-                _showKanjiPath ? '漢字の道 — путь кандзи' : 'あなたの道 — ваш путь',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: colors.ink,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _showKanjiPath
-                    ? 'Свой темп, не зависит от остального пути — максимум один юнит в день'
-                    : 'Каждый узел приближает к пониманию живого текста',
-                style: TextStyle(color: colors.muted, fontSize: 13.5),
-              ),
-              const SizedBox(height: 14),
-              _PathSwitcher(
-                colors: colors,
-                showKanji: _showKanjiPath,
-                onChanged: (v) => setState(() => _showKanjiPath = v),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Center(
-              child: SizedBox(
-                width: _pathWidth,
-                height: pathHeight,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: _PathPainter(
-                          points: points,
-                          doneUpToIndex: doneUpTo,
-                          doneColor: colors.accent,
-                          lockedColor: colors.pathLineLocked,
-                        ),
-                      ),
-                    ),
-                    for (var i = 0; i < units.length; i++)
-                      _buildNode(colors, units[i], points[i]),
-                    if (_selectedUnitId != null)
-                      _buildPopover(colors, units, points),
+    // Заголовок прокручивается вместе с картой — иначе в узком/невысоком
+    // окне высокий блок-подсказка не помещался и давал overflow.
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(40, 24, 40, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const HintBanner(
+                  hintKey: HintKeys.roadmap,
+                  title: 'Это ваш маршрут обучения',
+                  body: 'Идите по узлам сверху вниз. Каждый узел — короткий урок '
+                      '(теория + практика), после которого его карточки попадают '
+                      'в Повторение.',
+                  bullets: [
+                    'Переключатель «Основной путь / Кандзи» — два параллельных трека, не блокируют друг друга',
+                    'Замок на узле — сначала нужно пройти то, что от него зависит',
+                    'Справа: серия дней, сколько карточек ждёт повторения, прогресс по JLPT',
                   ],
                 ),
+                Text(
+                  _showKanjiPath ? '漢字の道 — путь кандзи' : 'あなたの道 — ваш путь',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: colors.ink,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _showKanjiPath
+                      ? 'Свой темп, не зависит от остального пути — максимум один юнит в день'
+                      : 'Каждый узел приближает к пониманию живого текста',
+                  style: TextStyle(color: colors.muted, fontSize: 13.5),
+                ),
+                const SizedBox(height: 14),
+                _PathSwitcher(
+                  colors: colors,
+                  showKanji: _showKanjiPath,
+                  onChanged: (v) => setState(() => _showKanjiPath = v),
+                ),
+              ],
+            ),
+          ),
+          Center(
+            child: SizedBox(
+              width: _pathWidth,
+              height: pathHeight,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _PathPainter(
+                        points: points,
+                        doneUpToIndex: doneUpTo,
+                        doneColor: colors.accent,
+                        lockedColor: colors.pathLineLocked,
+                      ),
+                    ),
+                  ),
+                  for (var i = 0; i < units.length; i++)
+                    _buildNode(colors, units[i], points[i]),
+                  if (_selectedUnitId != null)
+                    _buildPopover(colors, units, points),
+                ],
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
