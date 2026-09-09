@@ -88,15 +88,16 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     child: GestureDetector(
                       onTap: () => setState(() => _revealed = !_revealed),
                       child: Container(
-                        width: 420,
+                        width: 480,
                         constraints: const BoxConstraints(minHeight: 220),
-                        padding: const EdgeInsets.all(28),
+                        padding: const EdgeInsets.fromLTRB(28, 28, 28, 22),
                         decoration: BoxDecoration(
                           border: Border.all(color: Theme.of(context).dividerColor),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
                               card.front,
@@ -110,16 +111,53 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             ),
                             if (_revealed) ...[
                               const Divider(height: 40),
-                              Text(
-                                card.back,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 18, color: Theme.of(context).colors.ink),
-                              ),
+                              () {
+                                final lines = card.back.split('\n');
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      lines.first,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).colors.ink,
+                                      ),
+                                    ),
+                                    if (lines.length > 1) ...[
+                                      const SizedBox(height: 14),
+                                      Container(
+                                        padding: const EdgeInsets.all(14),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colors.surface2,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            for (final line in lines.skip(1))
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                                child: Text(
+                                                  line,
+                                                  style: TextStyle(fontSize: 14.5, height: 1.4, color: Theme.of(context).colors.inkSoft),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                );
+                              }(),
                             ] else ...[
                               const SizedBox(height: 20),
-                              Text(
-                                'Нажми, чтобы увидеть ответ',
-                                style: TextStyle(color: Theme.of(context).hintColor),
+                              Center(
+                                child: Text(
+                                  'Нажми, чтобы увидеть ответ',
+                                  style: TextStyle(color: Theme.of(context).hintColor),
+                                ),
                               ),
                             ],
                           ],

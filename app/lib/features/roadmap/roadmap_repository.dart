@@ -207,9 +207,18 @@ class RoadmapRepository {
 
     final lines = rows.map((row) {
       final w = row.readTable(db.words);
-      return '${w.surfaceForm} — ${_joinJsonArray(w.meaningsRu)}';
+      return '${w.surfaceForm} — ${_primaryMeaning(w.meaningsRu)}';
     });
     return lines.join('\n');
+  }
+
+  /// Только первое (основное) значение слова, без остальных пронумерованных
+  /// смыслов и словарных отсылок — на карточке нужен беглый контекст,
+  /// а не полная словарная статья со всеми нюансами сразу.
+  String _primaryMeaning(String jsonArray) {
+    final list = _parseJsonArray(jsonArray);
+    if (list.isEmpty) return '';
+    return list.first.replaceFirst(RegExp(r'^\d+\)\s*:?\s*'), '');
   }
 
   List<String> _parseJsonArray(String jsonArray) {

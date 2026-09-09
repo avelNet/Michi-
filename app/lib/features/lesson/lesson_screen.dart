@@ -206,27 +206,52 @@ class _LessonScreenState extends State<LessonScreen> {
                 child: Container(
                   width: double.infinity,
                   constraints: const BoxConstraints(minHeight: 320),
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
                   decoration: BoxDecoration(
                     border: Border.all(color: Theme.of(context).dividerColor),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  alignment: Alignment.center,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(item.front, style: const TextStyle(fontFamily: AppFonts.jp, fontSize: 120, height: 1)),
+                      Center(
+                        child: Text(item.front, style: const TextStyle(fontFamily: AppFonts.jp, fontSize: 120, height: 1)),
+                      ),
                       if (_flipped) ...[
                         const SizedBox(height: 24),
-                        Text(item.back, style: const TextStyle(fontSize: 22), textAlign: TextAlign.center),
+                        Center(
+                          child: Text(item.back, style: const TextStyle(fontSize: 22), textAlign: TextAlign.center),
+                        ),
                         if (item.theory != null) ...[
-                          const SizedBox(height: 12),
-                          Text(item.theory!, style: const TextStyle(fontSize: 14, color: Colors.grey), textAlign: TextAlign.center),
+                          const SizedBox(height: 20),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colors.surface2,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                for (final line in item.theory!.split('\n'))
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 5),
+                                    child: Text(
+                                      line,
+                                      style: TextStyle(fontSize: 15, height: 1.4, color: Theme.of(context).colors.inkSoft),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ],
                       ] else
                         const Padding(
                           padding: EdgeInsets.only(top: 12),
-                          child: Text('нажми, чтобы перевернуть', style: TextStyle(color: Colors.grey, fontSize: 15)),
+                          child: Center(
+                            child: Text('нажми, чтобы перевернуть', style: TextStyle(color: Colors.grey, fontSize: 15)),
+                          ),
                         ),
                     ],
                   ),

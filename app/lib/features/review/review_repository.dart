@@ -116,7 +116,7 @@ class ReviewRepository {
     final row = await query.getSingleOrNull();
     if (row == null) return null;
     final w = row.readTable(db.words);
-    return '${w.surfaceForm} — ${_joinJsonArray(w.meaningsRu)}';
+    return '${w.surfaceForm} — ${_primaryMeaning(w.meaningsRu)}';
   }
 
   List<String> _parseJsonArray(String jsonArray) {
@@ -131,6 +131,14 @@ class ReviewRepository {
   }
 
   String _joinJsonArray(String jsonArray) => _parseJsonArray(jsonArray).join(', ');
+
+  /// Только первое (основное) значение — без остальных пронумерованных
+  /// смыслов и словарных отсылок, для беглого контекста на карточке.
+  String _primaryMeaning(String jsonArray) {
+    final list = _parseJsonArray(jsonArray);
+    if (list.isEmpty) return '';
+    return list.first.replaceFirst(RegExp(r'^\d+\)\s*:?\s*'), '');
+  }
 
   /// Каждое чтение из JSON-массива — с ромадзи рядом, для тех, кому пока
   /// проще ориентироваться по латинице, чем бегло читать кану.
