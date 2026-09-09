@@ -49,6 +49,32 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(userProfile, userProfile.romajiHints);
 
             await m.createTable(uiHintSeen);
+
+            // Старый единственный профиль 'local': если им реально
+            // пользовались — оставляем как выбираемый профиль с именем;
+            // если это пустой сид-профиль — убираем, чтобы не мозолил
+            // глаза на экране выбора при первом запуске v2.
+            final localUser = await customSelect(
+              "SELECT id FROM users WHERE id = 'local'",
+            ).getSingleOrNull();
+            if (localUser != null) {
+              final used = await customSelect(
+                "SELECT "
+                "(SELECT COUNT(*) FROM review_log WHERE user_id='local') + "
+                "(SELECT COUNT(*) FROM unit_progress WHERE user_id='local') AS n",
+              ).getSingle();
+              final n = used.data['n'] as int? ?? 0;
+              if (n > 0) {
+                await customStatement(
+                  "UPDATE users SET display_name = COALESCE(display_name, 'Мой профиль'), "
+                  "avatar_emoji = COALESCE(avatar_emoji, '🌸') WHERE id = 'local'",
+                );
+              } else {
+                await customStatement("DELETE FROM srs_cards WHERE user_id='local'");
+                await customStatement("DELETE FROM user_profile WHERE user_id='local'");
+                await customStatement("DELETE FROM users WHERE id='local'");
+              }
+            }
           }
         },
       );

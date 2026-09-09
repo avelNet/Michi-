@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../../data/database.dart';
-import '../../data/seed/content_seed.dart';
 import '../../domain/srs/srs_scheduler.dart';
 import '../../theme/app_theme.dart';
 import 'review_repository.dart';
 
 class ReviewScreen extends StatefulWidget {
   final AppDatabase db;
+  final String userId;
+
   /// null — все карточки; true — только трек кандзи; false — только
   /// основной путь (без кандзи). Одна и та же граница, что и переключатель
   /// треков на Карте — «повторение» из вкладки кандзи не должно
   /// подсовывать частицы, и наоборот.
   final bool? kanjiOnly;
 
-  const ReviewScreen({super.key, required this.db, this.kanjiOnly});
+  const ReviewScreen({super.key, required this.db, required this.userId, this.kanjiOnly});
 
   @override
   State<ReviewScreen> createState() => _ReviewScreenState();
@@ -35,7 +36,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   Future<List<ReviewCard>> _load() async {
-    final cards = await _repo.loadDueCards(localUserId, kanjiOnly: widget.kanjiOnly);
+    final cards = await _repo.loadDueCards(widget.userId, kanjiOnly: widget.kanjiOnly);
     _queue
       ..clear()
       ..addAll(cards);
@@ -44,7 +45,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   Future<void> _rate(ReviewRating rating) async {
     final card = _queue.first;
-    await _repo.recordReview(userId: localUserId, card: card, rating: rating);
+    await _repo.recordReview(userId: widget.userId, card: card, rating: rating);
     setState(() {
       _queue.removeAt(0);
       _revealed = false;

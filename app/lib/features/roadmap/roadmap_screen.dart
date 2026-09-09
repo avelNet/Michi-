@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../data/database.dart';
-import '../../data/seed/content_seed.dart';
 import '../../theme/app_theme.dart';
 import '../kana_reference/kana_reference_screen.dart';
 import '../lesson/lesson_screen.dart';
@@ -12,10 +11,9 @@ import 'roadmap_repository.dart';
 
 class RoadmapScreen extends StatefulWidget {
   final AppDatabase db;
-  final bool isDark;
-  final VoidCallback onToggleTheme;
+  final String userId;
 
-  const RoadmapScreen({super.key, required this.db, required this.isDark, required this.onToggleTheme});
+  const RoadmapScreen({super.key, required this.db, required this.userId});
 
   @override
   State<RoadmapScreen> createState() => _RoadmapScreenState();
@@ -42,11 +40,11 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
   }
 
   Future<_RoadmapData> _load() async {
-    final units = await _repo.loadUnits(localUserId);
-    final dueKanji = await _repo.countDueReviews(localUserId, kanjiOnly: true);
-    final dueMain = await _repo.countDueReviews(localUserId, kanjiOnly: false);
-    final streak = await _repo.currentStreakDays(localUserId);
-    final n5 = await _repo.jlptProgressPct(localUserId, 'N5');
+    final units = await _repo.loadUnits(widget.userId);
+    final dueKanji = await _repo.countDueReviews(widget.userId, kanjiOnly: true);
+    final dueMain = await _repo.countDueReviews(widget.userId, kanjiOnly: false);
+    final streak = await _repo.currentStreakDays(widget.userId);
+    final n5 = await _repo.jlptProgressPct(widget.userId, 'N5');
     return _RoadmapData(
       units: units, dueReviewsKanji: dueKanji, dueReviewsMain: dueMain, streakDays: streak, n5Progress: n5,
     );
@@ -67,17 +65,13 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
           final data = snapshot.data!;
           return Row(
             children: [
-              _NavRail(
-                colors: colors,
-                onOpenReview: () => _openReview(kanjiOnly: _showKanjiPath),
-                onOpenKana: _openKanaReference,
-              ),
               Expanded(child: _buildPathArea(colors, data)),
               _Sidebar(
                 colors: colors,
                 data: data,
                 showingKanji: _showKanjiPath,
                 onOpenReview: () => _openReview(kanjiOnly: _showKanjiPath),
+                onOpenKana: _openKanaReference,
               ),
             ],
           );
@@ -88,7 +82,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
 
   Future<void> _openReview({bool? kanjiOnly}) async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db, kanjiOnly: kanjiOnly)),
+      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db, userId: widget.userId, kanjiOnly: kanjiOnly)),
     );
     setState(() => _future = _load());
   }
@@ -103,7 +97,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
     // Суточный лимит — только для кандзи, и только когда юнит ещё не
     // начат (уже начатый сегодня же юнит всегда можно доучить).
     if (unit.kind == 'kanji_vocab' && unit.status == 'unlocked') {
-      final limitReached = await _repo.kanjiDailyLimitReached(localUserId, excludingUnitId: unit.id);
+      final limitReached = await _repo.kanjiDailyLimitReached(widget.userId, excludingUnitId: unit.id);
       if (!mounted) return;
       if (limitReached) {
         setState(() => _selectedUnitId = null);
@@ -129,7 +123,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => LessonScreen(db: widget.db, userId: localUserId, unit: unit),
+        builder: (_) => LessonScreen(db: widget.db, userId: widget.userId, unit: unit),
       ),
     );
     setState(() {
@@ -159,46 +153,29 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(40, 28, 40, 12),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _showKanjiPath ? '漢字の道 — путь кандзи' : 'あなたの道 — ваш путь',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: colors.ink,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _showKanjiPath
-                          ? 'Свой темп, не зависит от остального пути — максимум один юнит в день'
-                          : 'Каждый узел приближает к пониманию живого текста',
-                      style: TextStyle(color: colors.muted, fontSize: 13.5),
-                    ),
-                    const SizedBox(height: 14),
-                    _PathSwitcher(
-                      colors: colors,
-                      showKanji: _showKanjiPath,
-                      onChanged: (v) => setState(() => _showKanjiPath = v),
-                    ),
-                  ],
+              Text(
+                _showKanjiPath ? '漢字の道 — путь кандзи' : 'あなたの道 — ваш путь',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: colors.ink,
                 ),
               ),
-              IconButton(
-                onPressed: widget.onToggleTheme,
-                icon: Icon(widget.isDark ? Icons.wb_sunny_outlined : Icons.dark_mode_outlined),
-                color: colors.inkSoft,
-                style: IconButton.styleFrom(
-                  backgroundColor: colors.surface,
-                  side: BorderSide(color: colors.line),
-                  shape: const CircleBorder(),
-                ),
+              const SizedBox(height: 4),
+              Text(
+                _showKanjiPath
+                    ? 'Свой темп, не зависит от остального пути — максимум один юнит в день'
+                    : 'Каждый узел приближает к пониманию живого текста',
+                style: TextStyle(color: colors.muted, fontSize: 13.5),
+              ),
+              const SizedBox(height: 14),
+              _PathSwitcher(
+                colors: colors,
+                showKanji: _showKanjiPath,
+                onChanged: (v) => setState(() => _showKanjiPath = v),
               ),
             ],
           ),
@@ -714,69 +691,18 @@ class _PathSwitcher extends StatelessWidget {
   }
 }
 
-class _NavRail extends StatelessWidget {
-  final AppColors colors;
-  final VoidCallback onOpenReview;
-  final VoidCallback onOpenKana;
-  const _NavRail({required this.colors, required this.onOpenReview, required this.onOpenKana});
-
-  @override
-  Widget build(BuildContext context) {
-    final icons = [
-      (Icons.map_outlined, 'Дорожная карта', true, null),
-      (Icons.style_outlined, 'Повторение', false, onOpenReview),
-      (Icons.grid_view_outlined, 'Кана — справочник', false, onOpenKana),
-      (Icons.bar_chart_outlined, 'Статистика (скоро)', false, null),
-      (Icons.settings_outlined, 'Настройки (скоро)', false, null),
-    ];
-    return Container(
-      width: 76,
-      color: colors.surface2,
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        children: [
-          Icon(Icons.account_balance_outlined, color: colors.accent, size: 26),
-          const SizedBox(height: 18),
-          for (final item in icons)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Tooltip(
-                message: item.$2,
-                child: InkWell(
-                  onTap: item.$4,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: item.$3 ? Color.alphaBlend(colors.accent.withValues(alpha: 0.14), colors.surface) : null,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(item.$1, color: item.$3 ? colors.accent : colors.inkSoft, size: 22),
-                  ),
-                ),
-              ),
-            ),
-          // Настройки переехали в общий список выше. Здесь снизу — место
-          // под будущую кнопку личного кабинета (когда появится
-          // авторизация), пока сознательно пусто, а не фиктивная иконка.
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-}
-
 class _Sidebar extends StatelessWidget {
   final AppColors colors;
   final _RoadmapData data;
   final bool showingKanji;
   final VoidCallback onOpenReview;
+  final VoidCallback onOpenKana;
   const _Sidebar({
     required this.colors,
     required this.data,
     required this.showingKanji,
     required this.onOpenReview,
+    required this.onOpenKana,
   });
 
   @override
@@ -841,6 +767,16 @@ class _Sidebar extends StatelessWidget {
                 _jlptRow('N2', 0),
                 _jlptRow('N1', 0),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: onOpenKana,
+              icon: const Icon(Icons.grid_view_outlined, size: 16),
+              label: const Text('Справочник каны'),
+              style: OutlinedButton.styleFrom(foregroundColor: colors.inkSoft, side: BorderSide(color: colors.line)),
             ),
           ),
         ],

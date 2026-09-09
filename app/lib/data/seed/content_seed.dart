@@ -4,8 +4,10 @@ import '../database.dart';
 import 'kana_import.dart';
 import 'kanji_import.dart';
 
-/// Единственный локальный профиль на устройстве до появления
-/// многопользовательских аккаунтов/синка (см. docs/database-design.md).
+/// Историческое имя единственного профиля до появления локальных
+/// аккаунтов. Сам профиль больше НЕ создаётся сидом (это делает
+/// регистрация); константа оставлена для обратной совместимости старых
+/// установок и миграции v1→v2.
 const localUserId = 'local';
 
 /// Годзюон: (ромадзи, ряд, хирагана, катакана) — оба алфавита идут
@@ -34,14 +36,7 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
   if (alreadySeeded.isNotEmpty) return;
 
   await db.transaction(() async {
-    await db.into(db.users).insert(
-          UsersCompanion.insert(id: localUserId),
-          mode: InsertMode.insertOrIgnore,
-        );
-    await db.into(db.userProfile).insert(
-          UserProfileCompanion.insert(userId: localUserId),
-          mode: InsertMode.insertOrIgnore,
-        );
+    // Профиль пользователя больше не сеется — его создаёт регистрация.
 
     // ---- Типы упражнений --------------------------------------------
     // MVP: один универсальный тип «переверни карточку и оцени себя» —

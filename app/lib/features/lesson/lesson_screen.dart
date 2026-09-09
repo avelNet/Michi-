@@ -304,7 +304,7 @@ class _LessonScreenState extends State<LessonScreen> {
                 child: FilledButton.icon(
                   onPressed: () async {
                     await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db, kanjiOnly: true)),
+                      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db, userId: widget.userId, kanjiOnly: true)),
                     );
                     if (!mounted) return;
                     Navigator.of(context).pop(true);

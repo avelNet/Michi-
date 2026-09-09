@@ -1,98 +1,112 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'data/database.dart';
-import 'data/seed/content_seed.dart';
-import 'data/seed/srs_enrollment.dart';
-import 'features/roadmap/roadmap_screen.dart';
+import 'app/app_shell.dart';
+import 'app/providers.dart';
+import 'features/auth/profile_picker_screen.dart';
+import 'features/auth/register_screen.dart';
+import 'features/onboarding/onboarding_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
-  runApp(const MichiApp());
+  runApp(const ProviderScope(child: MichiApp()));
 }
 
-/// Тема живёт на уровне приложения (MaterialApp.themeMode), а не внутри
-/// одного экрана — иначе при переходе на другой экран (Navigator.push)
-/// он не наследует локальный выбор темы и падает на дефолтную светлую.
-/// Так тёмная тема применяется одинаково везде: на Карте, в Уроке,
-/// в Повторении.
-class MichiApp extends StatefulWidget {
+class MichiApp extends ConsumerWidget {
   const MichiApp({super.key});
 
   @override
-  State<MichiApp> createState() => _MichiAppState();
-}
-
-class _MichiAppState extends State<MichiApp> {
-  ThemeMode _themeMode = ThemeMode.light;
-
-  void _toggleTheme() {
-    setState(() {
-      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Michi',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(Brightness.light),
       darkTheme: buildAppTheme(Brightness.dark),
-      themeMode: _themeMode,
-      home: _AppRoot(isDark: _themeMode == ThemeMode.dark, onToggleTheme: _toggleTheme),
+      themeMode: ref.watch(themeModeProvider),
+      home: const _Router(),
     );
   }
 }
 
-/// Открывает БД, засеивает минимальный реальный контент при первом
-/// запуске и показывает Дорожную карту.
-class _AppRoot extends StatefulWidget {
-  final bool isDark;
-  final VoidCallback onToggleTheme;
-
-  const _AppRoot({required this.isDark, required this.onToggleTheme});
+/// Единая точка маршрутизации: контент засеян? кто-то вошёл? онбординг
+/// пройден? — и показывает соответствующий экран. Никаких именованных
+/// маршрутов пока не нужно, состояний немного.
+class _Router extends ConsumerWidget {
+  const _Router();
 
   @override
-  State<_AppRoot> createState() => _AppRootState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final content = ref.watch(contentReadyProvider);
+
+    return content.when(
+      loading: () => const _Splash(),
+      error: (e, _) => _FatalError('Не удалось подготовить контент:\n$e'),
+      data: (_) {
+        final session = ref.watch(sessionProvider);
+        return session.when(
+          loading: () => const _Splash(),
+          error: (e, _) => _FatalError('Ошибка сессии:\n$e'),
+          data: (userId) {
+            if (userId == null) return const _LoggedOut();
+
+            final user = ref.watch(currentUserProvider);
+            return user.when(
+              loading: () => const _Splash(),
+              error: (e, _) => _FatalError('Ошибка профиля:\n$e'),
+              data: (row) {
+                if (row == null) return const _LoggedOut();
+                if (row.onboardedAt == null) {
+                  return OnboardingScreen(userId: row.id);
+                }
+                return AppShell(userId: row.id);
+              },
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
-class _AppRootState extends State<_AppRoot> {
-  late final AppDatabase _db;
-  late final Future<void> _ready;
+class _LoggedOut extends ConsumerWidget {
+  const _LoggedOut();
 
   @override
-  void initState() {
-    super.initState();
-    _db = AppDatabase();
-    _ready = seedContentIfEmpty(_db).then((_) => enrollAccessibleContentInSrs(_db, localUserId));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profiles = ref.watch(profilesProvider);
+    return profiles.when(
+      loading: () => const _Splash(),
+      error: (e, _) => _FatalError('Не удалось загрузить профили:\n$e'),
+      data: (list) =>
+          list.isEmpty ? const RegisterScreen(firstRun: true) : const ProfilePickerScreen(),
+    );
   }
+}
 
-  @override
-  void dispose() {
-    _db.close();
-    super.dispose();
-  }
+class _Splash extends StatelessWidget {
+  const _Splash();
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: _ready,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Ошибка запуска: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
-              ),
-            ),
-          );
-        }
-        return RoadmapScreen(db: _db, isDark: widget.isDark, onToggleTheme: widget.onToggleTheme);
-      },
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _FatalError extends StatelessWidget {
+  final String message;
+  const _FatalError(this.message);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(message, style: const TextStyle(color: Colors.red)),
+        ),
+      ),
     );
   }
 }
