@@ -133,14 +133,17 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              card.front,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: AppFonts.jp,
-                                fontSize: 56,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colors.ink,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                card.front,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: AppFonts.jp,
+                                  fontSize: card.front.runes.length > 8 ? 30 : 56,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colors.ink,
+                                ),
                               ),
                             ),
                             if (_revealed) ...[

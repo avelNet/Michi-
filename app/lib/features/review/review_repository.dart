@@ -104,6 +104,12 @@ class ReviewRepository {
             .getSingleOrNull();
         if (p == null) return null;
         return (p.particle, p.shortDescription ?? p.longTheory ?? '');
+      case 'grammar_point':
+        final g = await (db.select(db.grammarPoints)..where((t) => t.contentItemId.equals(contentItemId)))
+            .getSingleOrNull();
+        if (g == null) return null;
+        // Лицо — шаблон конструкции, изнанка — название и разбор.
+        return (g.pattern, '${g.title}\n${g.explanation}');
       default:
         return null;
     }
