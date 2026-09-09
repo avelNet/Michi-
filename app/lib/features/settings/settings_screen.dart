@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../app/providers.dart';
 import '../../data/database.dart';
@@ -204,6 +208,13 @@ class _Body extends ConsumerWidget {
           ),
           _ActionRow(
             colors: colors,
+            icon: Icons.download_outlined,
+            label: 'Экспортировать мои данные',
+            hint: 'Сохранить прогресс и настройки в JSON-файл',
+            onTap: () => _exportData(context, ref),
+          ),
+          _ActionRow(
+            colors: colors,
             icon: Icons.restart_alt,
             label: 'Начать обучение сначала',
             hint: 'Сбросить прогресс и повторения. Профиль и настройки останутся',
@@ -221,6 +232,25 @@ class _Body extends ConsumerWidget {
         ]),
       ],
     );
+  }
+
+  Future<void> _exportData(BuildContext context, WidgetRef ref) async {
+    try {
+      final data = await ref.read(authRepositoryProvider).exportData(userId);
+      final dir = await getApplicationDocumentsDirectory();
+      final stamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
+      final file = File('${dir.path}${Platform.pathSeparator}michi-export-$stamp.json');
+      await file.writeAsString(const JsonEncoder.withIndent('  ').convert(data));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Сохранено: ${file.path}'), duration: const Duration(seconds: 6)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Не удалось: $e')));
+      }
+    }
   }
 
   Future<void> _confirmResetProgress(BuildContext context, WidgetRef ref) async {

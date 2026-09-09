@@ -198,6 +198,40 @@ class AuthRepository {
     });
   }
 
+  /// Все данные профиля одним JSON-совместимым объектом — для экспорта/
+  /// бэкапа. PIN-хэш не включаем.
+  Future<Map<String, dynamic>> exportData(String userId) async {
+    Future<List<Map<String, dynamic>>> rows(String table, String col) async {
+      final res = await db
+          .customSelect('SELECT * FROM $table WHERE $col = ?',
+              variables: [Variable<String>(userId)])
+          .get();
+      return res.map((r) => r.data).toList();
+    }
+
+    final user = await (db.select(db.users)..where((t) => t.id.equals(userId)))
+        .getSingle();
+    return {
+      'exported_at': DateTime.now().toIso8601String(),
+      'schema_version': 2,
+      'profile': {
+        'id': user.id,
+        'display_name': user.displayName,
+        'email': user.email,
+        'avatar_emoji': user.avatarEmoji,
+        'created_at': user.createdAt,
+        'onboarded_at': user.onboardedAt,
+      },
+      'user_profile': await rows('user_profile', 'user_id'),
+      'srs_cards': await rows('srs_cards', 'user_id'),
+      'review_log': await rows('review_log', 'user_id'),
+      'unit_progress': await rows('unit_progress', 'user_id'),
+      'daily_activity': await rows('daily_activity', 'user_id'),
+      'user_vocab': await rows('user_vocab', 'user_id'),
+      'comprehension_snapshot': await rows('comprehension_snapshot', 'user_id'),
+    };
+  }
+
   static String _newSalt() {
     final bytes = List<int>.generate(16, (_) => _rng.nextInt(256));
     return base64Url.encode(bytes);

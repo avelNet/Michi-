@@ -63,6 +63,9 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   Future<void> _maybeNotify() async {
     if (!mounted) return;
+    // Свежие цифры для баннера/бейджа — раз в минуту достаточно.
+    ref.invalidate(dueSummaryProvider);
+
     final profile = ref.read(profileProvider).value;
     if (profile == null || profile.remindersEnabled != 1) return;
 
@@ -94,7 +97,11 @@ class _AppShellState extends ConsumerState<AppShell> {
     await DesktopToast.show(title, body);
   }
 
-  void _go(int i) => setState(() => _index = i);
+  void _go(int i) {
+    setState(() => _index = i);
+    // Возврат из Повторения/Урока — обновить бейдж и напоминание.
+    ref.invalidate(dueSummaryProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
