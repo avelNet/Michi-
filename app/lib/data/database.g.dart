@@ -6111,6 +6111,70 @@ class Users extends Table with TableInfo<Users, User> {
     requiredDuringInsert: false,
     $customConstraints: '',
   );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _pinHashMeta = const VerificationMeta(
+    'pinHash',
+  );
+  late final GeneratedColumn<String> pinHash = GeneratedColumn<String>(
+    'pin_hash',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _pinSaltMeta = const VerificationMeta(
+    'pinSalt',
+  );
+  late final GeneratedColumn<String> pinSalt = GeneratedColumn<String>(
+    'pin_salt',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _avatarEmojiMeta = const VerificationMeta(
+    'avatarEmoji',
+  );
+  late final GeneratedColumn<String> avatarEmoji = GeneratedColumn<String>(
+    'avatar_emoji',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _onboardedAtMeta = const VerificationMeta(
+    'onboardedAt',
+  );
+  late final GeneratedColumn<String> onboardedAt = GeneratedColumn<String>(
+    'onboarded_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _lastActiveAtMeta = const VerificationMeta(
+    'lastActiveAt',
+  );
+  late final GeneratedColumn<String> lastActiveAt = GeneratedColumn<String>(
+    'last_active_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -6124,7 +6188,17 @@ class Users extends Table with TableInfo<Users, User> {
     defaultValue: const CustomExpression('datetime(\'now\')'),
   );
   @override
-  List<GeneratedColumn> get $columns => [id, displayName, createdAt];
+  List<GeneratedColumn> get $columns => [
+    id,
+    displayName,
+    email,
+    pinHash,
+    pinSalt,
+    avatarEmoji,
+    onboardedAt,
+    lastActiveAt,
+    createdAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -6151,6 +6225,51 @@ class Users extends Table with TableInfo<Users, User> {
         ),
       );
     }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    }
+    if (data.containsKey('pin_hash')) {
+      context.handle(
+        _pinHashMeta,
+        pinHash.isAcceptableOrUnknown(data['pin_hash']!, _pinHashMeta),
+      );
+    }
+    if (data.containsKey('pin_salt')) {
+      context.handle(
+        _pinSaltMeta,
+        pinSalt.isAcceptableOrUnknown(data['pin_salt']!, _pinSaltMeta),
+      );
+    }
+    if (data.containsKey('avatar_emoji')) {
+      context.handle(
+        _avatarEmojiMeta,
+        avatarEmoji.isAcceptableOrUnknown(
+          data['avatar_emoji']!,
+          _avatarEmojiMeta,
+        ),
+      );
+    }
+    if (data.containsKey('onboarded_at')) {
+      context.handle(
+        _onboardedAtMeta,
+        onboardedAt.isAcceptableOrUnknown(
+          data['onboarded_at']!,
+          _onboardedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_active_at')) {
+      context.handle(
+        _lastActiveAtMeta,
+        lastActiveAt.isAcceptableOrUnknown(
+          data['last_active_at']!,
+          _lastActiveAtMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -6174,6 +6293,30 @@ class Users extends Table with TableInfo<Users, User> {
         DriftSqlType.string,
         data['${effectivePrefix}display_name'],
       ),
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      ),
+      pinHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pin_hash'],
+      ),
+      pinSalt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pin_salt'],
+      ),
+      avatarEmoji: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_emoji'],
+      ),
+      onboardedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}onboarded_at'],
+      ),
+      lastActiveAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_active_at'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}created_at'],
@@ -6193,14 +6336,48 @@ class Users extends Table with TableInfo<Users, User> {
 class User extends DataClass implements Insertable<User> {
   final String id;
   final String? displayName;
+  final String? email;
+  final String? pinHash;
+  final String? pinSalt;
+  final String? avatarEmoji;
+  final String? onboardedAt;
+  final String? lastActiveAt;
   final String createdAt;
-  const User({required this.id, this.displayName, required this.createdAt});
+  const User({
+    required this.id,
+    this.displayName,
+    this.email,
+    this.pinHash,
+    this.pinSalt,
+    this.avatarEmoji,
+    this.onboardedAt,
+    this.lastActiveAt,
+    required this.createdAt,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     if (!nullToAbsent || displayName != null) {
       map['display_name'] = Variable<String>(displayName);
+    }
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
+    if (!nullToAbsent || pinHash != null) {
+      map['pin_hash'] = Variable<String>(pinHash);
+    }
+    if (!nullToAbsent || pinSalt != null) {
+      map['pin_salt'] = Variable<String>(pinSalt);
+    }
+    if (!nullToAbsent || avatarEmoji != null) {
+      map['avatar_emoji'] = Variable<String>(avatarEmoji);
+    }
+    if (!nullToAbsent || onboardedAt != null) {
+      map['onboarded_at'] = Variable<String>(onboardedAt);
+    }
+    if (!nullToAbsent || lastActiveAt != null) {
+      map['last_active_at'] = Variable<String>(lastActiveAt);
     }
     map['created_at'] = Variable<String>(createdAt);
     return map;
@@ -6212,6 +6389,24 @@ class User extends DataClass implements Insertable<User> {
       displayName: displayName == null && nullToAbsent
           ? const Value.absent()
           : Value(displayName),
+      email: email == null && nullToAbsent
+          ? const Value.absent()
+          : Value(email),
+      pinHash: pinHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pinHash),
+      pinSalt: pinSalt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pinSalt),
+      avatarEmoji: avatarEmoji == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarEmoji),
+      onboardedAt: onboardedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(onboardedAt),
+      lastActiveAt: lastActiveAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastActiveAt),
       createdAt: Value(createdAt),
     );
   }
@@ -6224,6 +6419,12 @@ class User extends DataClass implements Insertable<User> {
     return User(
       id: serializer.fromJson<String>(json['id']),
       displayName: serializer.fromJson<String?>(json['display_name']),
+      email: serializer.fromJson<String?>(json['email']),
+      pinHash: serializer.fromJson<String?>(json['pin_hash']),
+      pinSalt: serializer.fromJson<String?>(json['pin_salt']),
+      avatarEmoji: serializer.fromJson<String?>(json['avatar_emoji']),
+      onboardedAt: serializer.fromJson<String?>(json['onboarded_at']),
+      lastActiveAt: serializer.fromJson<String?>(json['last_active_at']),
       createdAt: serializer.fromJson<String>(json['created_at']),
     );
   }
@@ -6233,6 +6434,12 @@ class User extends DataClass implements Insertable<User> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'display_name': serializer.toJson<String?>(displayName),
+      'email': serializer.toJson<String?>(email),
+      'pin_hash': serializer.toJson<String?>(pinHash),
+      'pin_salt': serializer.toJson<String?>(pinSalt),
+      'avatar_emoji': serializer.toJson<String?>(avatarEmoji),
+      'onboarded_at': serializer.toJson<String?>(onboardedAt),
+      'last_active_at': serializer.toJson<String?>(lastActiveAt),
       'created_at': serializer.toJson<String>(createdAt),
     };
   }
@@ -6240,10 +6447,22 @@ class User extends DataClass implements Insertable<User> {
   User copyWith({
     String? id,
     Value<String?> displayName = const Value.absent(),
+    Value<String?> email = const Value.absent(),
+    Value<String?> pinHash = const Value.absent(),
+    Value<String?> pinSalt = const Value.absent(),
+    Value<String?> avatarEmoji = const Value.absent(),
+    Value<String?> onboardedAt = const Value.absent(),
+    Value<String?> lastActiveAt = const Value.absent(),
     String? createdAt,
   }) => User(
     id: id ?? this.id,
     displayName: displayName.present ? displayName.value : this.displayName,
+    email: email.present ? email.value : this.email,
+    pinHash: pinHash.present ? pinHash.value : this.pinHash,
+    pinSalt: pinSalt.present ? pinSalt.value : this.pinSalt,
+    avatarEmoji: avatarEmoji.present ? avatarEmoji.value : this.avatarEmoji,
+    onboardedAt: onboardedAt.present ? onboardedAt.value : this.onboardedAt,
+    lastActiveAt: lastActiveAt.present ? lastActiveAt.value : this.lastActiveAt,
     createdAt: createdAt ?? this.createdAt,
   );
   User copyWithCompanion(UsersCompanion data) {
@@ -6252,6 +6471,18 @@ class User extends DataClass implements Insertable<User> {
       displayName: data.displayName.present
           ? data.displayName.value
           : this.displayName,
+      email: data.email.present ? data.email.value : this.email,
+      pinHash: data.pinHash.present ? data.pinHash.value : this.pinHash,
+      pinSalt: data.pinSalt.present ? data.pinSalt.value : this.pinSalt,
+      avatarEmoji: data.avatarEmoji.present
+          ? data.avatarEmoji.value
+          : this.avatarEmoji,
+      onboardedAt: data.onboardedAt.present
+          ? data.onboardedAt.value
+          : this.onboardedAt,
+      lastActiveAt: data.lastActiveAt.present
+          ? data.lastActiveAt.value
+          : this.lastActiveAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -6261,48 +6492,100 @@ class User extends DataClass implements Insertable<User> {
     return (StringBuffer('User(')
           ..write('id: $id, ')
           ..write('displayName: $displayName, ')
+          ..write('email: $email, ')
+          ..write('pinHash: $pinHash, ')
+          ..write('pinSalt: $pinSalt, ')
+          ..write('avatarEmoji: $avatarEmoji, ')
+          ..write('onboardedAt: $onboardedAt, ')
+          ..write('lastActiveAt: $lastActiveAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, displayName, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    displayName,
+    email,
+    pinHash,
+    pinSalt,
+    avatarEmoji,
+    onboardedAt,
+    lastActiveAt,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is User &&
           other.id == this.id &&
           other.displayName == this.displayName &&
+          other.email == this.email &&
+          other.pinHash == this.pinHash &&
+          other.pinSalt == this.pinSalt &&
+          other.avatarEmoji == this.avatarEmoji &&
+          other.onboardedAt == this.onboardedAt &&
+          other.lastActiveAt == this.lastActiveAt &&
           other.createdAt == this.createdAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> id;
   final Value<String?> displayName;
+  final Value<String?> email;
+  final Value<String?> pinHash;
+  final Value<String?> pinSalt;
+  final Value<String?> avatarEmoji;
+  final Value<String?> onboardedAt;
+  final Value<String?> lastActiveAt;
   final Value<String> createdAt;
   final Value<int> rowid;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.displayName = const Value.absent(),
+    this.email = const Value.absent(),
+    this.pinHash = const Value.absent(),
+    this.pinSalt = const Value.absent(),
+    this.avatarEmoji = const Value.absent(),
+    this.onboardedAt = const Value.absent(),
+    this.lastActiveAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   UsersCompanion.insert({
     required String id,
     this.displayName = const Value.absent(),
+    this.email = const Value.absent(),
+    this.pinHash = const Value.absent(),
+    this.pinSalt = const Value.absent(),
+    this.avatarEmoji = const Value.absent(),
+    this.onboardedAt = const Value.absent(),
+    this.lastActiveAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id);
   static Insertable<User> custom({
     Expression<String>? id,
     Expression<String>? displayName,
+    Expression<String>? email,
+    Expression<String>? pinHash,
+    Expression<String>? pinSalt,
+    Expression<String>? avatarEmoji,
+    Expression<String>? onboardedAt,
+    Expression<String>? lastActiveAt,
     Expression<String>? createdAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (displayName != null) 'display_name': displayName,
+      if (email != null) 'email': email,
+      if (pinHash != null) 'pin_hash': pinHash,
+      if (pinSalt != null) 'pin_salt': pinSalt,
+      if (avatarEmoji != null) 'avatar_emoji': avatarEmoji,
+      if (onboardedAt != null) 'onboarded_at': onboardedAt,
+      if (lastActiveAt != null) 'last_active_at': lastActiveAt,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -6311,12 +6594,24 @@ class UsersCompanion extends UpdateCompanion<User> {
   UsersCompanion copyWith({
     Value<String>? id,
     Value<String?>? displayName,
+    Value<String?>? email,
+    Value<String?>? pinHash,
+    Value<String?>? pinSalt,
+    Value<String?>? avatarEmoji,
+    Value<String?>? onboardedAt,
+    Value<String?>? lastActiveAt,
     Value<String>? createdAt,
     Value<int>? rowid,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
       displayName: displayName ?? this.displayName,
+      email: email ?? this.email,
+      pinHash: pinHash ?? this.pinHash,
+      pinSalt: pinSalt ?? this.pinSalt,
+      avatarEmoji: avatarEmoji ?? this.avatarEmoji,
+      onboardedAt: onboardedAt ?? this.onboardedAt,
+      lastActiveAt: lastActiveAt ?? this.lastActiveAt,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -6330,6 +6625,24 @@ class UsersCompanion extends UpdateCompanion<User> {
     }
     if (displayName.present) {
       map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (pinHash.present) {
+      map['pin_hash'] = Variable<String>(pinHash.value);
+    }
+    if (pinSalt.present) {
+      map['pin_salt'] = Variable<String>(pinSalt.value);
+    }
+    if (avatarEmoji.present) {
+      map['avatar_emoji'] = Variable<String>(avatarEmoji.value);
+    }
+    if (onboardedAt.present) {
+      map['onboarded_at'] = Variable<String>(onboardedAt.value);
+    }
+    if (lastActiveAt.present) {
+      map['last_active_at'] = Variable<String>(lastActiveAt.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
@@ -6345,6 +6658,12 @@ class UsersCompanion extends UpdateCompanion<User> {
     return (StringBuffer('UsersCompanion(')
           ..write('id: $id, ')
           ..write('displayName: $displayName, ')
+          ..write('email: $email, ')
+          ..write('pinHash: $pinHash, ')
+          ..write('pinSalt: $pinSalt, ')
+          ..write('avatarEmoji: $avatarEmoji, ')
+          ..write('onboardedAt: $onboardedAt, ')
+          ..write('lastActiveAt: $lastActiveAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -6460,6 +6779,114 @@ class UserProfile extends Table with TableInfo<UserProfile, UserProfileData> {
     $customConstraints:
         'CHECK (placement_level IN (\'N5\', \'N4\', \'N3\', \'N2\', \'N1\'))',
   );
+  static const VerificationMeta _themeModeMeta = const VerificationMeta(
+    'themeMode',
+  );
+  late final GeneratedColumn<String> themeMode = GeneratedColumn<String>(
+    'theme_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'system\' CHECK (theme_mode IN (\'light\', \'dark\', \'system\'))',
+    defaultValue: const CustomExpression('\'system\''),
+  );
+  static const VerificationMeta _remindersEnabledMeta = const VerificationMeta(
+    'remindersEnabled',
+  );
+  late final GeneratedColumn<int> remindersEnabled = GeneratedColumn<int>(
+    'reminders_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 1',
+    defaultValue: const CustomExpression('1'),
+  );
+  static const VerificationMeta _reminderHourMeta = const VerificationMeta(
+    'reminderHour',
+  );
+  late final GeneratedColumn<int> reminderHour = GeneratedColumn<int>(
+    'reminder_hour',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 19',
+    defaultValue: const CustomExpression('19'),
+  );
+  static const VerificationMeta _reminderMinuteMeta = const VerificationMeta(
+    'reminderMinute',
+  );
+  late final GeneratedColumn<int> reminderMinute = GeneratedColumn<int>(
+    'reminder_minute',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  static const VerificationMeta _notifyDueReviewsMeta = const VerificationMeta(
+    'notifyDueReviews',
+  );
+  late final GeneratedColumn<int> notifyDueReviews = GeneratedColumn<int>(
+    'notify_due_reviews',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 1',
+    defaultValue: const CustomExpression('1'),
+  );
+  static const VerificationMeta _notifyStreakRiskMeta = const VerificationMeta(
+    'notifyStreakRisk',
+  );
+  late final GeneratedColumn<int> notifyStreakRisk = GeneratedColumn<int>(
+    'notify_streak_risk',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 1',
+    defaultValue: const CustomExpression('1'),
+  );
+  static const VerificationMeta _notifyDailyGoalMeta = const VerificationMeta(
+    'notifyDailyGoal',
+  );
+  late final GeneratedColumn<int> notifyDailyGoal = GeneratedColumn<int>(
+    'notify_daily_goal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 1',
+    defaultValue: const CustomExpression('1'),
+  );
+  static const VerificationMeta _kanjiDailyLimitMeta = const VerificationMeta(
+    'kanjiDailyLimit',
+  );
+  late final GeneratedColumn<int> kanjiDailyLimit = GeneratedColumn<int>(
+    'kanji_daily_limit',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 1',
+    defaultValue: const CustomExpression('1'),
+  );
+  static const VerificationMeta _romajiHintsMeta = const VerificationMeta(
+    'romajiHints',
+  );
+  late final GeneratedColumn<int> romajiHints = GeneratedColumn<int>(
+    'romaji_hints',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 1',
+    defaultValue: const CustomExpression('1'),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -6483,6 +6910,15 @@ class UserProfile extends Table with TableInfo<UserProfile, UserProfileData> {
     comprehensionGoalPct,
     targetJlptLevel,
     placementLevel,
+    themeMode,
+    remindersEnabled,
+    reminderHour,
+    reminderMinute,
+    notifyDueReviews,
+    notifyStreakRisk,
+    notifyDailyGoal,
+    kanjiDailyLimit,
+    romajiHints,
     updatedAt,
   ];
   @override
@@ -6577,6 +7013,84 @@ class UserProfile extends Table with TableInfo<UserProfile, UserProfileData> {
         ),
       );
     }
+    if (data.containsKey('theme_mode')) {
+      context.handle(
+        _themeModeMeta,
+        themeMode.isAcceptableOrUnknown(data['theme_mode']!, _themeModeMeta),
+      );
+    }
+    if (data.containsKey('reminders_enabled')) {
+      context.handle(
+        _remindersEnabledMeta,
+        remindersEnabled.isAcceptableOrUnknown(
+          data['reminders_enabled']!,
+          _remindersEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_hour')) {
+      context.handle(
+        _reminderHourMeta,
+        reminderHour.isAcceptableOrUnknown(
+          data['reminder_hour']!,
+          _reminderHourMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_minute')) {
+      context.handle(
+        _reminderMinuteMeta,
+        reminderMinute.isAcceptableOrUnknown(
+          data['reminder_minute']!,
+          _reminderMinuteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notify_due_reviews')) {
+      context.handle(
+        _notifyDueReviewsMeta,
+        notifyDueReviews.isAcceptableOrUnknown(
+          data['notify_due_reviews']!,
+          _notifyDueReviewsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notify_streak_risk')) {
+      context.handle(
+        _notifyStreakRiskMeta,
+        notifyStreakRisk.isAcceptableOrUnknown(
+          data['notify_streak_risk']!,
+          _notifyStreakRiskMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notify_daily_goal')) {
+      context.handle(
+        _notifyDailyGoalMeta,
+        notifyDailyGoal.isAcceptableOrUnknown(
+          data['notify_daily_goal']!,
+          _notifyDailyGoalMeta,
+        ),
+      );
+    }
+    if (data.containsKey('kanji_daily_limit')) {
+      context.handle(
+        _kanjiDailyLimitMeta,
+        kanjiDailyLimit.isAcceptableOrUnknown(
+          data['kanji_daily_limit']!,
+          _kanjiDailyLimitMeta,
+        ),
+      );
+    }
+    if (data.containsKey('romaji_hints')) {
+      context.handle(
+        _romajiHintsMeta,
+        romajiHints.isAcceptableOrUnknown(
+          data['romaji_hints']!,
+          _romajiHintsMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -6628,6 +7142,42 @@ class UserProfile extends Table with TableInfo<UserProfile, UserProfileData> {
         DriftSqlType.string,
         data['${effectivePrefix}placement_level'],
       ),
+      themeMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}theme_mode'],
+      )!,
+      remindersEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminders_enabled'],
+      )!,
+      reminderHour: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_hour'],
+      )!,
+      reminderMinute: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minute'],
+      )!,
+      notifyDueReviews: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notify_due_reviews'],
+      )!,
+      notifyStreakRisk: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notify_streak_risk'],
+      )!,
+      notifyDailyGoal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notify_daily_goal'],
+      )!,
+      kanjiDailyLimit: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}kanji_daily_limit'],
+      )!,
+      romajiHints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}romaji_hints'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}updated_at'],
@@ -6654,6 +7204,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
   final int? comprehensionGoalPct;
   final String? targetJlptLevel;
   final String? placementLevel;
+  final String themeMode;
+  final int remindersEnabled;
+  final int reminderHour;
+  final int reminderMinute;
+  final int notifyDueReviews;
+  final int notifyStreakRisk;
+  final int notifyDailyGoal;
+  final int kanjiDailyLimit;
+  final int romajiHints;
   final String updatedAt;
   const UserProfileData({
     required this.userId,
@@ -6665,6 +7224,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     this.comprehensionGoalPct,
     this.targetJlptLevel,
     this.placementLevel,
+    required this.themeMode,
+    required this.remindersEnabled,
+    required this.reminderHour,
+    required this.reminderMinute,
+    required this.notifyDueReviews,
+    required this.notifyStreakRisk,
+    required this.notifyDailyGoal,
+    required this.kanjiDailyLimit,
+    required this.romajiHints,
     required this.updatedAt,
   });
   @override
@@ -6685,6 +7253,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     if (!nullToAbsent || placementLevel != null) {
       map['placement_level'] = Variable<String>(placementLevel);
     }
+    map['theme_mode'] = Variable<String>(themeMode);
+    map['reminders_enabled'] = Variable<int>(remindersEnabled);
+    map['reminder_hour'] = Variable<int>(reminderHour);
+    map['reminder_minute'] = Variable<int>(reminderMinute);
+    map['notify_due_reviews'] = Variable<int>(notifyDueReviews);
+    map['notify_streak_risk'] = Variable<int>(notifyStreakRisk);
+    map['notify_daily_goal'] = Variable<int>(notifyDailyGoal);
+    map['kanji_daily_limit'] = Variable<int>(kanjiDailyLimit);
+    map['romaji_hints'] = Variable<int>(romajiHints);
     map['updated_at'] = Variable<String>(updatedAt);
     return map;
   }
@@ -6706,6 +7283,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       placementLevel: placementLevel == null && nullToAbsent
           ? const Value.absent()
           : Value(placementLevel),
+      themeMode: Value(themeMode),
+      remindersEnabled: Value(remindersEnabled),
+      reminderHour: Value(reminderHour),
+      reminderMinute: Value(reminderMinute),
+      notifyDueReviews: Value(notifyDueReviews),
+      notifyStreakRisk: Value(notifyStreakRisk),
+      notifyDailyGoal: Value(notifyDailyGoal),
+      kanjiDailyLimit: Value(kanjiDailyLimit),
+      romajiHints: Value(romajiHints),
       updatedAt: Value(updatedAt),
     );
   }
@@ -6727,6 +7313,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       ),
       targetJlptLevel: serializer.fromJson<String?>(json['target_jlpt_level']),
       placementLevel: serializer.fromJson<String?>(json['placement_level']),
+      themeMode: serializer.fromJson<String>(json['theme_mode']),
+      remindersEnabled: serializer.fromJson<int>(json['reminders_enabled']),
+      reminderHour: serializer.fromJson<int>(json['reminder_hour']),
+      reminderMinute: serializer.fromJson<int>(json['reminder_minute']),
+      notifyDueReviews: serializer.fromJson<int>(json['notify_due_reviews']),
+      notifyStreakRisk: serializer.fromJson<int>(json['notify_streak_risk']),
+      notifyDailyGoal: serializer.fromJson<int>(json['notify_daily_goal']),
+      kanjiDailyLimit: serializer.fromJson<int>(json['kanji_daily_limit']),
+      romajiHints: serializer.fromJson<int>(json['romaji_hints']),
       updatedAt: serializer.fromJson<String>(json['updated_at']),
     );
   }
@@ -6743,6 +7338,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       'comprehension_goal_pct': serializer.toJson<int?>(comprehensionGoalPct),
       'target_jlpt_level': serializer.toJson<String?>(targetJlptLevel),
       'placement_level': serializer.toJson<String?>(placementLevel),
+      'theme_mode': serializer.toJson<String>(themeMode),
+      'reminders_enabled': serializer.toJson<int>(remindersEnabled),
+      'reminder_hour': serializer.toJson<int>(reminderHour),
+      'reminder_minute': serializer.toJson<int>(reminderMinute),
+      'notify_due_reviews': serializer.toJson<int>(notifyDueReviews),
+      'notify_streak_risk': serializer.toJson<int>(notifyStreakRisk),
+      'notify_daily_goal': serializer.toJson<int>(notifyDailyGoal),
+      'kanji_daily_limit': serializer.toJson<int>(kanjiDailyLimit),
+      'romaji_hints': serializer.toJson<int>(romajiHints),
       'updated_at': serializer.toJson<String>(updatedAt),
     };
   }
@@ -6757,6 +7361,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     Value<int?> comprehensionGoalPct = const Value.absent(),
     Value<String?> targetJlptLevel = const Value.absent(),
     Value<String?> placementLevel = const Value.absent(),
+    String? themeMode,
+    int? remindersEnabled,
+    int? reminderHour,
+    int? reminderMinute,
+    int? notifyDueReviews,
+    int? notifyStreakRisk,
+    int? notifyDailyGoal,
+    int? kanjiDailyLimit,
+    int? romajiHints,
     String? updatedAt,
   }) => UserProfileData(
     userId: userId ?? this.userId,
@@ -6774,6 +7387,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     placementLevel: placementLevel.present
         ? placementLevel.value
         : this.placementLevel,
+    themeMode: themeMode ?? this.themeMode,
+    remindersEnabled: remindersEnabled ?? this.remindersEnabled,
+    reminderHour: reminderHour ?? this.reminderHour,
+    reminderMinute: reminderMinute ?? this.reminderMinute,
+    notifyDueReviews: notifyDueReviews ?? this.notifyDueReviews,
+    notifyStreakRisk: notifyStreakRisk ?? this.notifyStreakRisk,
+    notifyDailyGoal: notifyDailyGoal ?? this.notifyDailyGoal,
+    kanjiDailyLimit: kanjiDailyLimit ?? this.kanjiDailyLimit,
+    romajiHints: romajiHints ?? this.romajiHints,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   UserProfileData copyWithCompanion(UserProfileCompanion data) {
@@ -6803,6 +7425,31 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       placementLevel: data.placementLevel.present
           ? data.placementLevel.value
           : this.placementLevel,
+      themeMode: data.themeMode.present ? data.themeMode.value : this.themeMode,
+      remindersEnabled: data.remindersEnabled.present
+          ? data.remindersEnabled.value
+          : this.remindersEnabled,
+      reminderHour: data.reminderHour.present
+          ? data.reminderHour.value
+          : this.reminderHour,
+      reminderMinute: data.reminderMinute.present
+          ? data.reminderMinute.value
+          : this.reminderMinute,
+      notifyDueReviews: data.notifyDueReviews.present
+          ? data.notifyDueReviews.value
+          : this.notifyDueReviews,
+      notifyStreakRisk: data.notifyStreakRisk.present
+          ? data.notifyStreakRisk.value
+          : this.notifyStreakRisk,
+      notifyDailyGoal: data.notifyDailyGoal.present
+          ? data.notifyDailyGoal.value
+          : this.notifyDailyGoal,
+      kanjiDailyLimit: data.kanjiDailyLimit.present
+          ? data.kanjiDailyLimit.value
+          : this.kanjiDailyLimit,
+      romajiHints: data.romajiHints.present
+          ? data.romajiHints.value
+          : this.romajiHints,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -6819,6 +7466,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           ..write('comprehensionGoalPct: $comprehensionGoalPct, ')
           ..write('targetJlptLevel: $targetJlptLevel, ')
           ..write('placementLevel: $placementLevel, ')
+          ..write('themeMode: $themeMode, ')
+          ..write('remindersEnabled: $remindersEnabled, ')
+          ..write('reminderHour: $reminderHour, ')
+          ..write('reminderMinute: $reminderMinute, ')
+          ..write('notifyDueReviews: $notifyDueReviews, ')
+          ..write('notifyStreakRisk: $notifyStreakRisk, ')
+          ..write('notifyDailyGoal: $notifyDailyGoal, ')
+          ..write('kanjiDailyLimit: $kanjiDailyLimit, ')
+          ..write('romajiHints: $romajiHints, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -6835,6 +7491,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     comprehensionGoalPct,
     targetJlptLevel,
     placementLevel,
+    themeMode,
+    remindersEnabled,
+    reminderHour,
+    reminderMinute,
+    notifyDueReviews,
+    notifyStreakRisk,
+    notifyDailyGoal,
+    kanjiDailyLimit,
+    romajiHints,
     updatedAt,
   );
   @override
@@ -6850,6 +7515,15 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           other.comprehensionGoalPct == this.comprehensionGoalPct &&
           other.targetJlptLevel == this.targetJlptLevel &&
           other.placementLevel == this.placementLevel &&
+          other.themeMode == this.themeMode &&
+          other.remindersEnabled == this.remindersEnabled &&
+          other.reminderHour == this.reminderHour &&
+          other.reminderMinute == this.reminderMinute &&
+          other.notifyDueReviews == this.notifyDueReviews &&
+          other.notifyStreakRisk == this.notifyStreakRisk &&
+          other.notifyDailyGoal == this.notifyDailyGoal &&
+          other.kanjiDailyLimit == this.kanjiDailyLimit &&
+          other.romajiHints == this.romajiHints &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -6863,6 +7537,15 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
   final Value<int?> comprehensionGoalPct;
   final Value<String?> targetJlptLevel;
   final Value<String?> placementLevel;
+  final Value<String> themeMode;
+  final Value<int> remindersEnabled;
+  final Value<int> reminderHour;
+  final Value<int> reminderMinute;
+  final Value<int> notifyDueReviews;
+  final Value<int> notifyStreakRisk;
+  final Value<int> notifyDailyGoal;
+  final Value<int> kanjiDailyLimit;
+  final Value<int> romajiHints;
   final Value<String> updatedAt;
   final Value<int> rowid;
   const UserProfileCompanion({
@@ -6875,6 +7558,15 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.comprehensionGoalPct = const Value.absent(),
     this.targetJlptLevel = const Value.absent(),
     this.placementLevel = const Value.absent(),
+    this.themeMode = const Value.absent(),
+    this.remindersEnabled = const Value.absent(),
+    this.reminderHour = const Value.absent(),
+    this.reminderMinute = const Value.absent(),
+    this.notifyDueReviews = const Value.absent(),
+    this.notifyStreakRisk = const Value.absent(),
+    this.notifyDailyGoal = const Value.absent(),
+    this.kanjiDailyLimit = const Value.absent(),
+    this.romajiHints = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -6888,6 +7580,15 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.comprehensionGoalPct = const Value.absent(),
     this.targetJlptLevel = const Value.absent(),
     this.placementLevel = const Value.absent(),
+    this.themeMode = const Value.absent(),
+    this.remindersEnabled = const Value.absent(),
+    this.reminderHour = const Value.absent(),
+    this.reminderMinute = const Value.absent(),
+    this.notifyDueReviews = const Value.absent(),
+    this.notifyStreakRisk = const Value.absent(),
+    this.notifyDailyGoal = const Value.absent(),
+    this.kanjiDailyLimit = const Value.absent(),
+    this.romajiHints = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : userId = Value(userId);
@@ -6901,6 +7602,15 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     Expression<int>? comprehensionGoalPct,
     Expression<String>? targetJlptLevel,
     Expression<String>? placementLevel,
+    Expression<String>? themeMode,
+    Expression<int>? remindersEnabled,
+    Expression<int>? reminderHour,
+    Expression<int>? reminderMinute,
+    Expression<int>? notifyDueReviews,
+    Expression<int>? notifyStreakRisk,
+    Expression<int>? notifyDailyGoal,
+    Expression<int>? kanjiDailyLimit,
+    Expression<int>? romajiHints,
     Expression<String>? updatedAt,
     Expression<int>? rowid,
   }) {
@@ -6915,6 +7625,15 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
         'comprehension_goal_pct': comprehensionGoalPct,
       if (targetJlptLevel != null) 'target_jlpt_level': targetJlptLevel,
       if (placementLevel != null) 'placement_level': placementLevel,
+      if (themeMode != null) 'theme_mode': themeMode,
+      if (remindersEnabled != null) 'reminders_enabled': remindersEnabled,
+      if (reminderHour != null) 'reminder_hour': reminderHour,
+      if (reminderMinute != null) 'reminder_minute': reminderMinute,
+      if (notifyDueReviews != null) 'notify_due_reviews': notifyDueReviews,
+      if (notifyStreakRisk != null) 'notify_streak_risk': notifyStreakRisk,
+      if (notifyDailyGoal != null) 'notify_daily_goal': notifyDailyGoal,
+      if (kanjiDailyLimit != null) 'kanji_daily_limit': kanjiDailyLimit,
+      if (romajiHints != null) 'romaji_hints': romajiHints,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -6930,6 +7649,15 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     Value<int?>? comprehensionGoalPct,
     Value<String?>? targetJlptLevel,
     Value<String?>? placementLevel,
+    Value<String>? themeMode,
+    Value<int>? remindersEnabled,
+    Value<int>? reminderHour,
+    Value<int>? reminderMinute,
+    Value<int>? notifyDueReviews,
+    Value<int>? notifyStreakRisk,
+    Value<int>? notifyDailyGoal,
+    Value<int>? kanjiDailyLimit,
+    Value<int>? romajiHints,
     Value<String>? updatedAt,
     Value<int>? rowid,
   }) {
@@ -6943,6 +7671,15 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       comprehensionGoalPct: comprehensionGoalPct ?? this.comprehensionGoalPct,
       targetJlptLevel: targetJlptLevel ?? this.targetJlptLevel,
       placementLevel: placementLevel ?? this.placementLevel,
+      themeMode: themeMode ?? this.themeMode,
+      remindersEnabled: remindersEnabled ?? this.remindersEnabled,
+      reminderHour: reminderHour ?? this.reminderHour,
+      reminderMinute: reminderMinute ?? this.reminderMinute,
+      notifyDueReviews: notifyDueReviews ?? this.notifyDueReviews,
+      notifyStreakRisk: notifyStreakRisk ?? this.notifyStreakRisk,
+      notifyDailyGoal: notifyDailyGoal ?? this.notifyDailyGoal,
+      kanjiDailyLimit: kanjiDailyLimit ?? this.kanjiDailyLimit,
+      romajiHints: romajiHints ?? this.romajiHints,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -6978,6 +7715,33 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     if (placementLevel.present) {
       map['placement_level'] = Variable<String>(placementLevel.value);
     }
+    if (themeMode.present) {
+      map['theme_mode'] = Variable<String>(themeMode.value);
+    }
+    if (remindersEnabled.present) {
+      map['reminders_enabled'] = Variable<int>(remindersEnabled.value);
+    }
+    if (reminderHour.present) {
+      map['reminder_hour'] = Variable<int>(reminderHour.value);
+    }
+    if (reminderMinute.present) {
+      map['reminder_minute'] = Variable<int>(reminderMinute.value);
+    }
+    if (notifyDueReviews.present) {
+      map['notify_due_reviews'] = Variable<int>(notifyDueReviews.value);
+    }
+    if (notifyStreakRisk.present) {
+      map['notify_streak_risk'] = Variable<int>(notifyStreakRisk.value);
+    }
+    if (notifyDailyGoal.present) {
+      map['notify_daily_goal'] = Variable<int>(notifyDailyGoal.value);
+    }
+    if (kanjiDailyLimit.present) {
+      map['kanji_daily_limit'] = Variable<int>(kanjiDailyLimit.value);
+    }
+    if (romajiHints.present) {
+      map['romaji_hints'] = Variable<int>(romajiHints.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<String>(updatedAt.value);
     }
@@ -6999,7 +7763,282 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
           ..write('comprehensionGoalPct: $comprehensionGoalPct, ')
           ..write('targetJlptLevel: $targetJlptLevel, ')
           ..write('placementLevel: $placementLevel, ')
+          ..write('themeMode: $themeMode, ')
+          ..write('remindersEnabled: $remindersEnabled, ')
+          ..write('reminderHour: $reminderHour, ')
+          ..write('reminderMinute: $reminderMinute, ')
+          ..write('notifyDueReviews: $notifyDueReviews, ')
+          ..write('notifyStreakRisk: $notifyStreakRisk, ')
+          ..write('notifyDailyGoal: $notifyDailyGoal, ')
+          ..write('kanjiDailyLimit: $kanjiDailyLimit, ')
+          ..write('romajiHints: $romajiHints, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class UiHintSeen extends Table with TableInfo<UiHintSeen, UiHintSeenData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  UiHintSeen(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL REFERENCES users(id)',
+  );
+  static const VerificationMeta _hintKeyMeta = const VerificationMeta(
+    'hintKey',
+  );
+  late final GeneratedColumn<String> hintKey = GeneratedColumn<String>(
+    'hint_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _seenAtMeta = const VerificationMeta('seenAt');
+  late final GeneratedColumn<String> seenAt = GeneratedColumn<String>(
+    'seen_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT (datetime(\'now\'))',
+    defaultValue: const CustomExpression('datetime(\'now\')'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [userId, hintKey, seenAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ui_hint_seen';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UiHintSeenData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('hint_key')) {
+      context.handle(
+        _hintKeyMeta,
+        hintKey.isAcceptableOrUnknown(data['hint_key']!, _hintKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hintKeyMeta);
+    }
+    if (data.containsKey('seen_at')) {
+      context.handle(
+        _seenAtMeta,
+        seenAt.isAcceptableOrUnknown(data['seen_at']!, _seenAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, hintKey};
+  @override
+  UiHintSeenData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UiHintSeenData(
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      hintKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hint_key'],
+      )!,
+      seenAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}seen_at'],
+      )!,
+    );
+  }
+
+  @override
+  UiHintSeen createAlias(String alias) {
+    return UiHintSeen(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const [
+    'PRIMARY KEY(user_id, hint_key)',
+  ];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class UiHintSeenData extends DataClass implements Insertable<UiHintSeenData> {
+  final String userId;
+  final String hintKey;
+  final String seenAt;
+  const UiHintSeenData({
+    required this.userId,
+    required this.hintKey,
+    required this.seenAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['hint_key'] = Variable<String>(hintKey);
+    map['seen_at'] = Variable<String>(seenAt);
+    return map;
+  }
+
+  UiHintSeenCompanion toCompanion(bool nullToAbsent) {
+    return UiHintSeenCompanion(
+      userId: Value(userId),
+      hintKey: Value(hintKey),
+      seenAt: Value(seenAt),
+    );
+  }
+
+  factory UiHintSeenData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UiHintSeenData(
+      userId: serializer.fromJson<String>(json['user_id']),
+      hintKey: serializer.fromJson<String>(json['hint_key']),
+      seenAt: serializer.fromJson<String>(json['seen_at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'user_id': serializer.toJson<String>(userId),
+      'hint_key': serializer.toJson<String>(hintKey),
+      'seen_at': serializer.toJson<String>(seenAt),
+    };
+  }
+
+  UiHintSeenData copyWith({String? userId, String? hintKey, String? seenAt}) =>
+      UiHintSeenData(
+        userId: userId ?? this.userId,
+        hintKey: hintKey ?? this.hintKey,
+        seenAt: seenAt ?? this.seenAt,
+      );
+  UiHintSeenData copyWithCompanion(UiHintSeenCompanion data) {
+    return UiHintSeenData(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      hintKey: data.hintKey.present ? data.hintKey.value : this.hintKey,
+      seenAt: data.seenAt.present ? data.seenAt.value : this.seenAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UiHintSeenData(')
+          ..write('userId: $userId, ')
+          ..write('hintKey: $hintKey, ')
+          ..write('seenAt: $seenAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, hintKey, seenAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UiHintSeenData &&
+          other.userId == this.userId &&
+          other.hintKey == this.hintKey &&
+          other.seenAt == this.seenAt);
+}
+
+class UiHintSeenCompanion extends UpdateCompanion<UiHintSeenData> {
+  final Value<String> userId;
+  final Value<String> hintKey;
+  final Value<String> seenAt;
+  final Value<int> rowid;
+  const UiHintSeenCompanion({
+    this.userId = const Value.absent(),
+    this.hintKey = const Value.absent(),
+    this.seenAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UiHintSeenCompanion.insert({
+    required String userId,
+    required String hintKey,
+    this.seenAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : userId = Value(userId),
+       hintKey = Value(hintKey);
+  static Insertable<UiHintSeenData> custom({
+    Expression<String>? userId,
+    Expression<String>? hintKey,
+    Expression<String>? seenAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (hintKey != null) 'hint_key': hintKey,
+      if (seenAt != null) 'seen_at': seenAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UiHintSeenCompanion copyWith({
+    Value<String>? userId,
+    Value<String>? hintKey,
+    Value<String>? seenAt,
+    Value<int>? rowid,
+  }) {
+    return UiHintSeenCompanion(
+      userId: userId ?? this.userId,
+      hintKey: hintKey ?? this.hintKey,
+      seenAt: seenAt ?? this.seenAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (hintKey.present) {
+      map['hint_key'] = Variable<String>(hintKey.value);
+    }
+    if (seenAt.present) {
+      map['seen_at'] = Variable<String>(seenAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UiHintSeenCompanion(')
+          ..write('userId: $userId, ')
+          ..write('hintKey: $hintKey, ')
+          ..write('seenAt: $seenAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9827,6 +10866,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final UnitItems unitItems = UnitItems(this);
   late final Users users = Users(this);
   late final UserProfile userProfile = UserProfile(this);
+  late final UiHintSeen uiHintSeen = UiHintSeen(this);
   late final SrsCards srsCards = SrsCards(this);
   late final Index idxSrsDue = Index(
     'idx_srs_due',
@@ -9866,6 +10906,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     unitItems,
     users,
     userProfile,
+    uiHintSeen,
     srsCards,
     idxSrsDue,
     reviewLog,
@@ -15630,12 +16671,24 @@ typedef $UnitItemsProcessedTableManager =
 typedef $UsersCreateCompanionBuilder = UsersCompanion Function({
   required String id,
   Value<String?> displayName,
+  Value<String?> email,
+  Value<String?> pinHash,
+  Value<String?> pinSalt,
+  Value<String?> avatarEmoji,
+  Value<String?> onboardedAt,
+  Value<String?> lastActiveAt,
   Value<String> createdAt,
   Value<int> rowid,
 });
 typedef $UsersUpdateCompanionBuilder = UsersCompanion Function({
   Value<String> id,
   Value<String?> displayName,
+  Value<String?> email,
+  Value<String?> pinHash,
+  Value<String?> pinSalt,
+  Value<String?> avatarEmoji,
+  Value<String?> onboardedAt,
+  Value<String?> lastActiveAt,
   Value<String> createdAt,
   Value<int> rowid,
 });
@@ -15657,6 +16710,24 @@ final class $UsersReferences
     ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_userProfileRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<UiHintSeen, List<UiHintSeenData>>
+  _uiHintSeenRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.uiHintSeen,
+    aliasName: 'users__id__ui_hint_seen__user_id',
+  );
+
+  $UiHintSeenProcessedTableManager get uiHintSeenRefs {
+    final manager = $UiHintSeenTableManager(
+      $_db,
+      $_db.uiHintSeen,
+    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_uiHintSeenRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -15796,6 +16867,36 @@ class $UsersFilterComposer extends Composer<_$AppDatabase, Users> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pinHash => $composableBuilder(
+    column: $table.pinHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pinSalt => $composableBuilder(
+    column: $table.pinSalt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get avatarEmoji => $composableBuilder(
+    column: $table.avatarEmoji,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get onboardedAt => $composableBuilder(
+    column: $table.onboardedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastActiveAt => $composableBuilder(
+    column: $table.lastActiveAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -15817,6 +16918,31 @@ class $UsersFilterComposer extends Composer<_$AppDatabase, Users> {
           }) => $UserProfileFilterComposer(
             $db: $db,
             $table: $db.userProfile,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> uiHintSeenRefs(
+    Expression<bool> Function($UiHintSeenFilterComposer f) f,
+  ) {
+    final $UiHintSeenFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.uiHintSeen,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $UiHintSeenFilterComposer(
+            $db: $db,
+            $table: $db.uiHintSeen,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -15995,6 +17121,36 @@ class $UsersOrderingComposer extends Composer<_$AppDatabase, Users> {
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pinHash => $composableBuilder(
+    column: $table.pinHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pinSalt => $composableBuilder(
+    column: $table.pinSalt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get avatarEmoji => $composableBuilder(
+    column: $table.avatarEmoji,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get onboardedAt => $composableBuilder(
+    column: $table.onboardedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastActiveAt => $composableBuilder(
+    column: $table.lastActiveAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -16017,6 +17173,30 @@ class $UsersAnnotationComposer extends Composer<_$AppDatabase, Users> {
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get pinHash =>
+      $composableBuilder(column: $table.pinHash, builder: (column) => column);
+
+  GeneratedColumn<String> get pinSalt =>
+      $composableBuilder(column: $table.pinSalt, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarEmoji => $composableBuilder(
+    column: $table.avatarEmoji,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get onboardedAt => $composableBuilder(
+    column: $table.onboardedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastActiveAt => $composableBuilder(
+    column: $table.lastActiveAt,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -16036,6 +17216,31 @@ class $UsersAnnotationComposer extends Composer<_$AppDatabase, Users> {
           }) => $UserProfileAnnotationComposer(
             $db: $db,
             $table: $db.userProfile,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> uiHintSeenRefs<T extends Object>(
+    Expression<T> Function($UiHintSeenAnnotationComposer a) f,
+  ) {
+    final $UiHintSeenAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.uiHintSeen,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $UiHintSeenAnnotationComposer(
+            $db: $db,
+            $table: $db.uiHintSeen,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -16211,6 +17416,7 @@ class $UsersTableManager
           User,
           PrefetchHooks Function({
             bool userProfileRefs,
+            bool uiHintSeenRefs,
             bool srsCardsRefs,
             bool reviewLogRefs,
             bool unitProgressRefs,
@@ -16234,11 +17440,23 @@ class $UsersTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String?> displayName = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> pinHash = const Value.absent(),
+                Value<String?> pinSalt = const Value.absent(),
+                Value<String?> avatarEmoji = const Value.absent(),
+                Value<String?> onboardedAt = const Value.absent(),
+                Value<String?> lastActiveAt = const Value.absent(),
                 Value<String> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 displayName: displayName,
+                email: email,
+                pinHash: pinHash,
+                pinSalt: pinSalt,
+                avatarEmoji: avatarEmoji,
+                onboardedAt: onboardedAt,
+                lastActiveAt: lastActiveAt,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -16246,11 +17464,23 @@ class $UsersTableManager
               ({
                 required String id,
                 Value<String?> displayName = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> pinHash = const Value.absent(),
+                Value<String?> pinSalt = const Value.absent(),
+                Value<String?> avatarEmoji = const Value.absent(),
+                Value<String?> onboardedAt = const Value.absent(),
+                Value<String?> lastActiveAt = const Value.absent(),
                 Value<String> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 displayName: displayName,
+                email: email,
+                pinHash: pinHash,
+                pinSalt: pinSalt,
+                avatarEmoji: avatarEmoji,
+                onboardedAt: onboardedAt,
+                lastActiveAt: lastActiveAt,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -16265,6 +17495,7 @@ class $UsersTableManager
           prefetchHooksCallback:
               ({
                 userProfileRefs = false,
+                uiHintSeenRefs = false,
                 srsCardsRefs = false,
                 reviewLogRefs = false,
                 unitProgressRefs = false,
@@ -16276,6 +17507,7 @@ class $UsersTableManager
                   db: db,
                   explicitlyWatchedTables: [
                     if (userProfileRefs) db.userProfile,
+                    if (uiHintSeenRefs) db.uiHintSeen,
                     if (srsCardsRefs) db.srsCards,
                     if (reviewLogRefs) db.reviewLog,
                     if (unitProgressRefs) db.unitProgress,
@@ -16293,6 +17525,19 @@ class $UsersTableManager
                               ._userProfileRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $UsersReferences(db, table, p0).userProfileRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.userId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (uiHintSeenRefs)
+                        await $_getPrefetchedData<User, Users, UiHintSeenData>(
+                          currentTable: table,
+                          referencedTable: $UsersReferences
+                              ._uiHintSeenRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $UsersReferences(db, table, p0).uiHintSeenRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.userId == item.id,
@@ -16417,6 +17662,7 @@ typedef $UsersProcessedTableManager =
       User,
       PrefetchHooks Function({
         bool userProfileRefs,
+        bool uiHintSeenRefs,
         bool srsCardsRefs,
         bool reviewLogRefs,
         bool unitProgressRefs,
@@ -16435,6 +17681,15 @@ typedef $UserProfileCreateCompanionBuilder = UserProfileCompanion Function({
   Value<int?> comprehensionGoalPct,
   Value<String?> targetJlptLevel,
   Value<String?> placementLevel,
+  Value<String> themeMode,
+  Value<int> remindersEnabled,
+  Value<int> reminderHour,
+  Value<int> reminderMinute,
+  Value<int> notifyDueReviews,
+  Value<int> notifyStreakRisk,
+  Value<int> notifyDailyGoal,
+  Value<int> kanjiDailyLimit,
+  Value<int> romajiHints,
   Value<String> updatedAt,
   Value<int> rowid,
 });
@@ -16448,6 +17703,15 @@ typedef $UserProfileUpdateCompanionBuilder = UserProfileCompanion Function({
   Value<int?> comprehensionGoalPct,
   Value<String?> targetJlptLevel,
   Value<String?> placementLevel,
+  Value<String> themeMode,
+  Value<int> remindersEnabled,
+  Value<int> reminderHour,
+  Value<int> reminderMinute,
+  Value<int> notifyDueReviews,
+  Value<int> notifyStreakRisk,
+  Value<int> notifyDailyGoal,
+  Value<int> kanjiDailyLimit,
+  Value<int> romajiHints,
   Value<String> updatedAt,
   Value<int> rowid,
 });
@@ -16519,6 +17783,51 @@ class $UserProfileFilterComposer extends Composer<_$AppDatabase, UserProfile> {
 
   ColumnFilters<String> get placementLevel => $composableBuilder(
     column: $table.placementLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get remindersEnabled => $composableBuilder(
+    column: $table.remindersEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderHour => $composableBuilder(
+    column: $table.reminderHour,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMinute => $composableBuilder(
+    column: $table.reminderMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notifyDueReviews => $composableBuilder(
+    column: $table.notifyDueReviews,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notifyStreakRisk => $composableBuilder(
+    column: $table.notifyStreakRisk,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notifyDailyGoal => $composableBuilder(
+    column: $table.notifyDailyGoal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get kanjiDailyLimit => $composableBuilder(
+    column: $table.kanjiDailyLimit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get romajiHints => $composableBuilder(
+    column: $table.romajiHints,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16600,6 +17909,51 @@ class $UserProfileOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get remindersEnabled => $composableBuilder(
+    column: $table.remindersEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderHour => $composableBuilder(
+    column: $table.reminderHour,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderMinute => $composableBuilder(
+    column: $table.reminderMinute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notifyDueReviews => $composableBuilder(
+    column: $table.notifyDueReviews,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notifyStreakRisk => $composableBuilder(
+    column: $table.notifyStreakRisk,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notifyDailyGoal => $composableBuilder(
+    column: $table.notifyDailyGoal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get kanjiDailyLimit => $composableBuilder(
+    column: $table.kanjiDailyLimit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get romajiHints => $composableBuilder(
+    column: $table.romajiHints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -16678,6 +18032,49 @@ class $UserProfileAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get themeMode =>
+      $composableBuilder(column: $table.themeMode, builder: (column) => column);
+
+  GeneratedColumn<int> get remindersEnabled => $composableBuilder(
+    column: $table.remindersEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderHour => $composableBuilder(
+    column: $table.reminderHour,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderMinute => $composableBuilder(
+    column: $table.reminderMinute,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get notifyDueReviews => $composableBuilder(
+    column: $table.notifyDueReviews,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get notifyStreakRisk => $composableBuilder(
+    column: $table.notifyStreakRisk,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get notifyDailyGoal => $composableBuilder(
+    column: $table.notifyDailyGoal,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get kanjiDailyLimit => $composableBuilder(
+    column: $table.kanjiDailyLimit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get romajiHints => $composableBuilder(
+    column: $table.romajiHints,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
@@ -16742,6 +18139,15 @@ class $UserProfileTableManager
                 Value<int?> comprehensionGoalPct = const Value.absent(),
                 Value<String?> targetJlptLevel = const Value.absent(),
                 Value<String?> placementLevel = const Value.absent(),
+                Value<String> themeMode = const Value.absent(),
+                Value<int> remindersEnabled = const Value.absent(),
+                Value<int> reminderHour = const Value.absent(),
+                Value<int> reminderMinute = const Value.absent(),
+                Value<int> notifyDueReviews = const Value.absent(),
+                Value<int> notifyStreakRisk = const Value.absent(),
+                Value<int> notifyDailyGoal = const Value.absent(),
+                Value<int> kanjiDailyLimit = const Value.absent(),
+                Value<int> romajiHints = const Value.absent(),
                 Value<String> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserProfileCompanion(
@@ -16754,6 +18160,15 @@ class $UserProfileTableManager
                 comprehensionGoalPct: comprehensionGoalPct,
                 targetJlptLevel: targetJlptLevel,
                 placementLevel: placementLevel,
+                themeMode: themeMode,
+                remindersEnabled: remindersEnabled,
+                reminderHour: reminderHour,
+                reminderMinute: reminderMinute,
+                notifyDueReviews: notifyDueReviews,
+                notifyStreakRisk: notifyStreakRisk,
+                notifyDailyGoal: notifyDailyGoal,
+                kanjiDailyLimit: kanjiDailyLimit,
+                romajiHints: romajiHints,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -16768,6 +18183,15 @@ class $UserProfileTableManager
                 Value<int?> comprehensionGoalPct = const Value.absent(),
                 Value<String?> targetJlptLevel = const Value.absent(),
                 Value<String?> placementLevel = const Value.absent(),
+                Value<String> themeMode = const Value.absent(),
+                Value<int> remindersEnabled = const Value.absent(),
+                Value<int> reminderHour = const Value.absent(),
+                Value<int> reminderMinute = const Value.absent(),
+                Value<int> notifyDueReviews = const Value.absent(),
+                Value<int> notifyStreakRisk = const Value.absent(),
+                Value<int> notifyDailyGoal = const Value.absent(),
+                Value<int> kanjiDailyLimit = const Value.absent(),
+                Value<int> romajiHints = const Value.absent(),
                 Value<String> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserProfileCompanion.insert(
@@ -16780,6 +18204,15 @@ class $UserProfileTableManager
                 comprehensionGoalPct: comprehensionGoalPct,
                 targetJlptLevel: targetJlptLevel,
                 placementLevel: placementLevel,
+                themeMode: themeMode,
+                remindersEnabled: remindersEnabled,
+                reminderHour: reminderHour,
+                reminderMinute: reminderMinute,
+                notifyDueReviews: notifyDueReviews,
+                notifyStreakRisk: notifyStreakRisk,
+                notifyDailyGoal: notifyDailyGoal,
+                kanjiDailyLimit: kanjiDailyLimit,
+                romajiHints: romajiHints,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -16847,6 +18280,278 @@ typedef $UserProfileProcessedTableManager =
       $UserProfileUpdateCompanionBuilder,
       (UserProfileData, $UserProfileReferences),
       UserProfileData,
+      PrefetchHooks Function({bool userId})
+    >;
+typedef $UiHintSeenCreateCompanionBuilder = UiHintSeenCompanion Function({
+  required String userId,
+  required String hintKey,
+  Value<String> seenAt,
+  Value<int> rowid,
+});
+typedef $UiHintSeenUpdateCompanionBuilder = UiHintSeenCompanion Function({
+  Value<String> userId,
+  Value<String> hintKey,
+  Value<String> seenAt,
+  Value<int> rowid,
+});
+
+final class $UiHintSeenReferences
+    extends BaseReferences<_$AppDatabase, UiHintSeen, UiHintSeenData> {
+  $UiHintSeenReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static Users _userIdTable(_$AppDatabase db) =>
+      db.users.createAlias('ui_hint_seen__user_id__users__id');
+
+  $UsersProcessedTableManager get userId {
+    final $_column = $_itemColumn<String>('user_id')!;
+
+    final manager = $UsersTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $UiHintSeenFilterComposer extends Composer<_$AppDatabase, UiHintSeen> {
+  $UiHintSeenFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get hintKey => $composableBuilder(
+    column: $table.hintKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get seenAt => $composableBuilder(
+    column: $table.seenAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $UsersFilterComposer get userId {
+    final $UsersFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $UsersFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $UiHintSeenOrderingComposer extends Composer<_$AppDatabase, UiHintSeen> {
+  $UiHintSeenOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get hintKey => $composableBuilder(
+    column: $table.hintKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get seenAt => $composableBuilder(
+    column: $table.seenAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $UsersOrderingComposer get userId {
+    final $UsersOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $UsersOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $UiHintSeenAnnotationComposer
+    extends Composer<_$AppDatabase, UiHintSeen> {
+  $UiHintSeenAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get hintKey =>
+      $composableBuilder(column: $table.hintKey, builder: (column) => column);
+
+  GeneratedColumn<String> get seenAt =>
+      $composableBuilder(column: $table.seenAt, builder: (column) => column);
+
+  $UsersAnnotationComposer get userId {
+    final $UsersAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $UsersAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $UiHintSeenTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          UiHintSeen,
+          UiHintSeenData,
+          $UiHintSeenFilterComposer,
+          $UiHintSeenOrderingComposer,
+          $UiHintSeenAnnotationComposer,
+          $UiHintSeenCreateCompanionBuilder,
+          $UiHintSeenUpdateCompanionBuilder,
+          (UiHintSeenData, $UiHintSeenReferences),
+          UiHintSeenData,
+          PrefetchHooks Function({bool userId})
+        > {
+  $UiHintSeenTableManager(_$AppDatabase db, UiHintSeen table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $UiHintSeenFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $UiHintSeenOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $UiHintSeenAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> userId = const Value.absent(),
+                Value<String> hintKey = const Value.absent(),
+                Value<String> seenAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UiHintSeenCompanion(
+                userId: userId,
+                hintKey: hintKey,
+                seenAt: seenAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String userId,
+                required String hintKey,
+                Value<String> seenAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UiHintSeenCompanion.insert(
+                userId: userId,
+                hintKey: hintKey,
+                seenAt: seenAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<UiHintSeen, UiHintSeenData>(table),
+                  $UiHintSeenReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.userId,
+                        referencedTable: $UiHintSeenReferences._userIdTable(db),
+                        referencedColumn: $UiHintSeenReferences
+                            ._userIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $UiHintSeenProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      UiHintSeen,
+      UiHintSeenData,
+      $UiHintSeenFilterComposer,
+      $UiHintSeenOrderingComposer,
+      $UiHintSeenAnnotationComposer,
+      $UiHintSeenCreateCompanionBuilder,
+      $UiHintSeenUpdateCompanionBuilder,
+      (UiHintSeenData, $UiHintSeenReferences),
+      UiHintSeenData,
       PrefetchHooks Function({bool userId})
     >;
 typedef $SrsCardsCreateCompanionBuilder = SrsCardsCompanion Function({
@@ -19511,6 +21216,8 @@ class $AppDatabaseManager {
   $UsersTableManager get users => $UsersTableManager(_db, _db.users);
   $UserProfileTableManager get userProfile =>
       $UserProfileTableManager(_db, _db.userProfile);
+  $UiHintSeenTableManager get uiHintSeen =>
+      $UiHintSeenTableManager(_db, _db.uiHintSeen);
   $SrsCardsTableManager get srsCards =>
       $SrsCardsTableManager(_db, _db.srsCards);
   $ReviewLogTableManager get reviewLog =>

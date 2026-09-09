@@ -200,12 +200,18 @@ CREATE TABLE unit_items (
 -- =====================================================================
 
 CREATE TABLE users (
-  id           TEXT PRIMARY KEY,      -- UUID = Supabase auth.users.id (в т.ч. anonymous-сессия)
-  display_name TEXT,
-  created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+  id            TEXT PRIMARY KEY,      -- UUID = Supabase auth.users.id (в т.ч. anonymous-сессия)
+  display_name  TEXT,
+  email         TEXT,                  -- локально необязателен; задел под облачный аккаунт
+  pin_hash      TEXT,                  -- sha256(pin + pin_salt), необязательный локальный PIN
+  pin_salt      TEXT,
+  avatar_emoji  TEXT,                  -- эмодзи-аватар профиля
+  onboarded_at  TEXT,                  -- NULL = онбординг не пройден
+  last_active_at TEXT,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- Результат онбординга: веса 4 столпов, темп, личная цель.
+-- Результат онбординга: веса 4 столпов, темп, личная цель + настройки.
 CREATE TABLE user_profile (
   user_id                 TEXT PRIMARY KEY REFERENCES users(id),
   weight_listening        INTEGER NOT NULL DEFAULT 25,
@@ -216,7 +222,24 @@ CREATE TABLE user_profile (
   comprehension_goal_pct  INTEGER,             -- НЕ хардкод — ставит сам пользователь на онбординге
   target_jlpt_level       TEXT CHECK (target_jlpt_level IN ('N5','N4','N3','N2','N1')),
   placement_level         TEXT CHECK (placement_level IN ('N5','N4','N3','N2','N1')),
+  theme_mode              TEXT NOT NULL DEFAULT 'system' CHECK (theme_mode IN ('light','dark','system')),
+  reminders_enabled       INTEGER NOT NULL DEFAULT 1,
+  reminder_hour           INTEGER NOT NULL DEFAULT 19,
+  reminder_minute         INTEGER NOT NULL DEFAULT 0,
+  notify_due_reviews      INTEGER NOT NULL DEFAULT 1,
+  notify_streak_risk      INTEGER NOT NULL DEFAULT 1,
+  notify_daily_goal       INTEGER NOT NULL DEFAULT 1,
+  kanji_daily_limit       INTEGER NOT NULL DEFAULT 1,   -- юнитов кандзи в день
+  romaji_hints            INTEGER NOT NULL DEFAULT 1,   -- показывать ромадзи рядом с каной
   updated_at              TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Какие обучающие подсказки (coach-marks) пользователь уже видел.
+CREATE TABLE ui_hint_seen (
+  user_id  TEXT NOT NULL REFERENCES users(id),
+  hint_key TEXT NOT NULL,
+  seen_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, hint_key)
 );
 
 -- Текущее состояние карточки SRS. Уникальна связка

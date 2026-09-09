@@ -152,9 +152,15 @@ CREATE TABLE unit_items (
 -- =====================================================================
 
 CREATE TABLE users (
-  id           TEXT NOT NULL PRIMARY KEY,
-  display_name TEXT,
-  created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+  id            TEXT NOT NULL PRIMARY KEY,
+  display_name  TEXT,
+  email         TEXT,
+  pin_hash      TEXT,
+  pin_salt      TEXT,
+  avatar_emoji  TEXT,
+  onboarded_at  TEXT,
+  last_active_at TEXT,
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE user_profile (
@@ -167,7 +173,26 @@ CREATE TABLE user_profile (
   comprehension_goal_pct  INTEGER,
   target_jlpt_level       TEXT CHECK (target_jlpt_level IN ('N5','N4','N3','N2','N1')),
   placement_level         TEXT CHECK (placement_level IN ('N5','N4','N3','N2','N1')),
+  theme_mode              TEXT NOT NULL DEFAULT 'system' CHECK (theme_mode IN ('light','dark','system')),
+  reminders_enabled       INTEGER NOT NULL DEFAULT 1,
+  reminder_hour           INTEGER NOT NULL DEFAULT 19,
+  reminder_minute         INTEGER NOT NULL DEFAULT 0,
+  notify_due_reviews      INTEGER NOT NULL DEFAULT 1,
+  notify_streak_risk      INTEGER NOT NULL DEFAULT 1,
+  notify_daily_goal       INTEGER NOT NULL DEFAULT 1,
+  kanji_daily_limit       INTEGER NOT NULL DEFAULT 1,
+  romaji_hints            INTEGER NOT NULL DEFAULT 1,
   updated_at              TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Какие обучающие подсказки (coach-marks) пользователь уже видел —
+-- чтобы показывать их один раз, но иметь возможность вызвать заново
+-- кнопкой «?». Универсальный per-user KV по ключу подсказки.
+CREATE TABLE ui_hint_seen (
+  user_id  TEXT NOT NULL REFERENCES users(id),
+  hint_key TEXT NOT NULL,
+  seen_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, hint_key)
 );
 
 CREATE TABLE srs_cards (
