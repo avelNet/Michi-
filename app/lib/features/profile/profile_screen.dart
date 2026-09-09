@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../data/database.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/hint_banner.dart';
 import '../auth/register_screen.dart' show kAvatarChoices;
+import '../hints/hint_repository.dart';
 import 'profile_repository.dart';
 
 final _statsProvider = FutureProvider.family<ProfileStats, String>((ref, userId) {
@@ -68,7 +70,15 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 20),
+        const HintBanner(
+          hintKey: HintKeys.profile,
+          title: 'Ваш личный кабинет',
+          body: 'Здесь видно всю картину: серия дней, сколько карточек в работе '
+              'и закреплено, пройденные юниты и достижения. Кнопка «Изменить» — '
+              'имя, аватар, e-mail и PIN.',
+        ),
+        const SizedBox(height: 8),
         stats.when(
           loading: () => const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
           error: (e, _) => Text('Не удалось посчитать статистику: $e', style: const TextStyle(color: Colors.red)),

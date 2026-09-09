@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../data/database.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/hint_banner.dart';
+import '../hints/hint_repository.dart';
 
 class SettingsScreen extends ConsumerWidget {
   final String userId;
@@ -41,7 +43,14 @@ class _Body extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(32, 28, 32, 40),
       children: [
         Text('Настройки', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: colors.ink)),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+        const HintBanner(
+          hintKey: HintKeys.settings,
+          title: 'Всё настраивается под вас',
+          body: 'Тема, дневная цель, баланс навыков и напоминания. Изменения '
+              'сохраняются сразу. Внизу — сброс прогресса и удаление профиля.',
+        ),
+        const SizedBox(height: 8),
 
         _Section(colors: colors, title: 'ВНЕШНИЙ ВИД', children: [
           _Row(
@@ -177,7 +186,22 @@ class _Body extends ConsumerWidget {
           ],
         ]),
 
-        _Section(colors: colors, title: 'ДАННЫЕ', children: [
+        _Section(colors: colors, title: 'ОБУЧЕНИЕ И ДАННЫЕ', children: [
+          _ActionRow(
+            colors: colors,
+            icon: Icons.lightbulb_outline,
+            label: 'Показать подсказки заново',
+            hint: 'Обучающие пояснения появятся снова во всех разделах',
+            onTap: () async {
+              await ref.read(hintRepositoryProvider).resetAll(userId);
+              ref.invalidate(seenHintsProvider);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Подсказки снова включены')),
+                );
+              }
+            },
+          ),
           _ActionRow(
             colors: colors,
             icon: Icons.restart_alt,

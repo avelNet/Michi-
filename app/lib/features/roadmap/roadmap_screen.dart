@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../data/database.dart';
+import '../../features/hints/hint_repository.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/hint_banner.dart';
 import '../kana_reference/kana_reference_screen.dart';
 import '../lesson/lesson_screen.dart';
 import '../review/review_screen.dart';
@@ -152,10 +154,22 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(40, 28, 40, 12),
+          padding: const EdgeInsets.fromLTRB(40, 24, 40, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const HintBanner(
+                hintKey: HintKeys.roadmap,
+                title: 'Это ваш маршрут обучения',
+                body: 'Идите по узлам сверху вниз. Каждый узел — короткий урок '
+                    '(теория + практика), после которого его карточки попадают '
+                    'в Повторение.',
+                bullets: [
+                  'Переключатель «Основной путь / Кандзи» — два параллельных трека, не блокируют друг друга',
+                  'Замок на узле — сначала нужно пройти то, что от него зависит',
+                  'Справа: серия дней, сколько карточек ждёт повторения, прогресс по JLPT',
+                ],
+              ),
               Text(
                 _showKanjiPath ? '漢字の道 — путь кандзи' : 'あなたの道 — ваш путь',
                 style: TextStyle(
