@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/database.dart';
 import '../../data/seed/srs_enrollment.dart';
+import '../../services/speech_service.dart';
 import '../../theme/app_theme.dart';
 import '../review/review_screen.dart';
 import '../roadmap/roadmap_repository.dart';
@@ -30,12 +31,32 @@ class _LessonScreenState extends State<LessonScreen> {
   int _index = 0;
   bool _flipped = false;
   bool _alreadyFullyLearned = false;
+  bool _hasJaVoice = true; // до проверки считаем, что голос есть
+
+  bool get _isListening => widget.unit.kind == 'listening';
 
   @override
   void initState() {
     super.initState();
     _repo = RoadmapRepository(widget.db);
     _load();
+    if (_isListening) {
+      SpeechService.instance.hasJapaneseVoice().then((v) {
+        if (mounted) setState(() => _hasJaVoice = v);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    SpeechService.instance.stop();
+    super.dispose();
+  }
+
+  void _speakCurrent() {
+    if (_isListening && _items.isNotEmpty) {
+      SpeechService.instance.speak(_items[_index].front);
+    }
   }
 
   Future<void> _load() async {
@@ -89,6 +110,7 @@ class _LessonScreenState extends State<LessonScreen> {
       _index++;
       _flipped = false;
     });
+    _speakCurrent();
   }
 
   @override
@@ -145,7 +167,10 @@ class _LessonScreenState extends State<LessonScreen> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () => setState(() => _stage = _Stage.practice),
+                  onPressed: () {
+                    setState(() => _stage = _Stage.practice);
+                    _speakCurrent();
+                  },
                   style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
                   child: Text(_items.isEmpty ? 'Понятно' : 'К практике (${_items.length})'),
                 ),
@@ -214,9 +239,31 @@ class _LessonScreenState extends State<LessonScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Center(
-                        child: Text(item.front, style: const TextStyle(fontFamily: AppFonts.jp, fontSize: 120, height: 1)),
-                      ),
+                      if (_isListening && !_flipped)
+                        _ListenPrompt(hasVoice: _hasJaVoice, onPlay: _speakCurrent)
+                      else
+                        Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              item.front,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: AppFonts.jp,
+                                fontSize: _isListening ? 34 : (item.front.runes.length > 3 ? 56 : 120),
+                                height: 1.1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (_isListening && _flipped) ...[
+                        const SizedBox(height: 10),
+                        TextButton.icon(
+                          onPressed: _speakCurrent,
+                          icon: const Icon(Icons.volume_up_outlined, size: 18),
+                          label: const Text('Прослушать ещё раз'),
+                        ),
+                      ],
                       if (_flipped) ...[
                         const SizedBox(height: 24),
                         Center(
@@ -326,6 +373,57 @@ class _LessonScreenState extends State<LessonScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Экран прослушивания до переворота: крупная кнопка воспроизведения и,
+/// если японского голоса в системе нет, честная подсказка читать вслух
+/// самому.
+class _ListenPrompt extends StatelessWidget {
+  final bool hasVoice;
+  final VoidCallback onPlay;
+  const _ListenPrompt({required this.hasVoice, required this.onPlay});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colors;
+    return Column(
+      children: [
+        const SizedBox(height: 12),
+        InkWell(
+          onTap: onPlay,
+          borderRadius: BorderRadius.circular(60),
+          child: Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: colors.accent.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+              border: Border.all(color: colors.accent, width: 2),
+            ),
+            child: Icon(Icons.volume_up_rounded, size: 44, color: colors.accent),
+          ),
+        ),
+        const SizedBox(height: 18),
+        Text(
+          'Прослушайте и вспомните перевод',
+          style: TextStyle(fontSize: 15, color: colors.inkSoft),
+        ),
+        if (!hasVoice) ...[
+          const SizedBox(height: 10),
+          Text(
+            'Японский голос в системе не найден. Озвучка может звучать неверно — '
+            'переверните карточку и прочитайте фразу вслух сами по ромадзи, '
+            'это тоже тренирует слух и произношение.\n'
+            'Как добавить голос: Параметры Windows → Время и язык → Язык и регион '
+            '→ добавить «日本語», в его параметрах включить «Речь».',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, height: 1.45, color: colors.muted),
+          ),
+        ],
+        const SizedBox(height: 12),
+      ],
     );
   }
 }

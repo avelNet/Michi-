@@ -32,6 +32,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
   static const _stepY = 150.0;
   static const _dxSequence = [
     0.0, 130.0, -110.0, 90.0, -140.0, 60.0, -100.0, 140.0, -70.0, 20.0,
+    120.0, -120.0, 80.0, -90.0, 130.0, -60.0, 100.0, -130.0,
   ];
 
   @override
@@ -537,6 +538,10 @@ class _NodeCircleState extends State<_NodeCircle> with SingleTickerProviderState
         return 'は';
       case 'grammar':
         return '文';
+      case 'mixed':
+        return '語';
+      case 'reading':
+        return '読';
       default:
         return '道';
     }

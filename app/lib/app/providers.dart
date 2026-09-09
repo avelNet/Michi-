@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/database.dart';
 import '../data/seed/content_seed.dart';
+import '../data/seed/curriculum.dart';
 import '../features/auth/auth_repository.dart';
 import '../features/settings/settings_repository.dart';
 
@@ -22,11 +23,15 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => SettingsRepository(ref.watch(dbProvider)),
 );
 
-/// Одноразовое наполнение БД контентом (кана/кандзи/слова/юниты) при
-/// первом запуске. Всё приложение ждёт этот провайдер на старте.
-final contentReadyProvider = FutureProvider<void>(
-  (ref) => seedContentIfEmpty(ref.watch(dbProvider)),
-);
+/// Подготовка контента на старте: базовое наполнение (кана/кандзи/слова)
+/// при первом запуске + идемпотентная досборка полного курса N5
+/// (грамматика, частицы, лексика, аудирование, граф дорожной карты) —
+/// каждый запуск, чтобы старые установки догоняли новый контент.
+final contentReadyProvider = FutureProvider<void>((ref) async {
+  final db = ref.watch(dbProvider);
+  await seedContentIfEmpty(db);
+  await ensureCurriculum(db);
+});
 
 /// Список всех локальных профилей (для экрана выбора профиля).
 final profilesProvider = FutureProvider<List<ProfileSummary>>(
