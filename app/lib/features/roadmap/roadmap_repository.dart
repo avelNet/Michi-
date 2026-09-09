@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../data/database.dart';
 import '../../domain/japanese/dictionary_text.dart';
 import '../../domain/japanese/romaji.dart';
+import '../../domain/streak.dart';
 
 class RoadmapUnit {
   final int id;
@@ -268,10 +269,18 @@ class RoadmapRepository {
     return rows.length;
   }
 
-  /// Серия дней подряд — пока не реализована (нет ещё ни одной
-  /// сессии повторения), честно возвращаем 0 вместо выдуманного числа.
+  /// Серия дней подряд с активностью (повторение / новый элемент /
+  /// минуты). Если сегодня ещё не занимались, но вчера — да, серия не
+  /// прервана и считается от вчера.
   Future<int> currentStreakDays(String userId) async {
-    return 0;
+    final rows = await (db.select(db.dailyActivity)
+          ..where((t) => t.userId.equals(userId)))
+        .get();
+    return currentStreak({
+      for (final d in rows)
+        if (d.reviewsDone > 0 || d.newItemsLearned > 0 || d.minutesSpent > 0)
+          d.activityDate,
+    });
   }
 
   /// Доля пройденных не-вехальных юнитов заданного уровня JLPT (0..1).

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../data/database.dart';
+import '../../domain/streak.dart';
 
 class DayCount {
   final DateTime date;
@@ -106,8 +107,8 @@ class StatsRepository {
       todayNew: todayRow?.newItemsLearned ?? 0,
       todayMinutes: todayRow?.minutesSpent ?? 0,
       goalMinutes: profile?.dailyMinutesGoal ?? 15,
-      streakDays: _currentStreak(activeKeys, today),
-      longestStreak: _longestStreak(activeKeys),
+      streakDays: currentStreak(activeKeys, now: now),
+      longestStreak: longestStreak(activeKeys),
       totalReviews: totalReviews.data['n'] as int? ?? 0,
       activeDays: activeKeys.length,
       accuracy30: accTotal == 0 ? null : accGood / accTotal,
@@ -117,35 +118,4 @@ class StatsRepository {
     );
   }
 
-  static int _currentStreak(Set<String> active, DateTime today) {
-    if (active.isEmpty) return 0;
-    var cursor = today;
-    if (!active.contains(_key(today))) {
-      final y = today.subtract(const Duration(days: 1));
-      if (!active.contains(_key(y))) return 0;
-      cursor = y;
-    }
-    var n = 0;
-    while (active.contains(_key(cursor))) {
-      n++;
-      cursor = cursor.subtract(const Duration(days: 1));
-    }
-    return n;
-  }
-
-  static int _longestStreak(Set<String> active) {
-    if (active.isEmpty) return 0;
-    final dates = active.map(DateTime.parse).toList()..sort();
-    var best = 1;
-    var run = 1;
-    for (var i = 1; i < dates.length; i++) {
-      if (dates[i].difference(dates[i - 1]).inDays == 1) {
-        run++;
-        if (run > best) best = run;
-      } else {
-        run = 1;
-      }
-    }
-    return best;
-  }
 }

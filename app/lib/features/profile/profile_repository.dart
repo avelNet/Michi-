@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../data/database.dart';
+import '../../domain/streak.dart';
 
 class ProfileStats {
   final int streakDays;
@@ -55,7 +56,10 @@ class ProfileRepository {
     final activity = await (db.select(db.dailyActivity)..where((t) => t.userId.equals(userId))).get();
 
     return ProfileStats(
-      streakDays: _streak(activity),
+      streakDays: currentStreak({
+        for (final d in activity)
+          if (_hadActivity(d)) d.activityDate,
+      }),
       totalCards: cards.length,
       learnedCards: learned,
       dueNow: due,
@@ -69,34 +73,4 @@ class ProfileRepository {
 
   static bool _hadActivity(DailyActivityData d) =>
       d.reviewsDone > 0 || d.newItemsLearned > 0 || d.minutesSpent > 0;
-
-  /// Серия дней подряд с активностью, считая назад от сегодня. Если
-  /// сегодня ещё не занимались, но вчера — да, серия не прервана и
-  /// считается от вчера.
-  static int _streak(List<DailyActivityData> activity) {
-    final active = {
-      for (final d in activity)
-        if (_hadActivity(d)) d.activityDate,
-    };
-    if (active.isEmpty) return 0;
-
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    String key(DateTime d) =>
-        '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
-    var cursor = today;
-    if (!active.contains(key(today))) {
-      final yesterday = today.subtract(const Duration(days: 1));
-      if (!active.contains(key(yesterday))) return 0;
-      cursor = yesterday;
-    }
-
-    var count = 0;
-    while (active.contains(key(cursor))) {
-      count++;
-      cursor = cursor.subtract(const Duration(days: 1));
-    }
-    return count;
-  }
 }
