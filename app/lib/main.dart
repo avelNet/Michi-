@@ -4,21 +4,42 @@ import 'data/database.dart';
 import 'data/seed/content_seed.dart';
 import 'data/seed/srs_enrollment.dart';
 import 'features/roadmap/roadmap_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const MichiApp());
 }
 
-class MichiApp extends StatelessWidget {
+/// Тема живёт на уровне приложения (MaterialApp.themeMode), а не внутри
+/// одного экрана — иначе при переходе на другой экран (Navigator.push)
+/// он не наследует локальный выбор темы и падает на дефолтную светлую.
+/// Так тёмная тема применяется одинаково везде: на Карте, в Уроке,
+/// в Повторении.
+class MichiApp extends StatefulWidget {
   const MichiApp({super.key});
+
+  @override
+  State<MichiApp> createState() => _MichiAppState();
+}
+
+class _MichiAppState extends State<MichiApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  void _toggleTheme() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Michi',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: const Color(0xFFB3261E)),
-      home: const _AppRoot(),
+      theme: buildAppTheme(Brightness.light),
+      darkTheme: buildAppTheme(Brightness.dark),
+      themeMode: _themeMode,
+      home: _AppRoot(isDark: _themeMode == ThemeMode.dark, onToggleTheme: _toggleTheme),
     );
   }
 }
@@ -26,7 +47,10 @@ class MichiApp extends StatelessWidget {
 /// Открывает БД, засеивает минимальный реальный контент при первом
 /// запуске и показывает Дорожную карту.
 class _AppRoot extends StatefulWidget {
-  const _AppRoot();
+  final bool isDark;
+  final VoidCallback onToggleTheme;
+
+  const _AppRoot({required this.isDark, required this.onToggleTheme});
 
   @override
   State<_AppRoot> createState() => _AppRootState();
@@ -67,7 +91,7 @@ class _AppRootState extends State<_AppRoot> {
             ),
           );
         }
-        return RoadmapScreen(db: _db);
+        return RoadmapScreen(db: _db, isDark: widget.isDark, onToggleTheme: widget.onToggleTheme);
       },
     );
   }

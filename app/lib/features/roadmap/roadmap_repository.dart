@@ -6,6 +6,7 @@ class RoadmapUnit {
   final int id;
   final String title;
   final String? subtitle;
+  final String? description;
   final String kind;
   final String? jlptLevel;
   final int sortOrder;
@@ -15,11 +16,23 @@ class RoadmapUnit {
     required this.id,
     required this.title,
     required this.subtitle,
+    required this.description,
     required this.kind,
     required this.jlptLevel,
     required this.sortOrder,
     required this.status,
   });
+}
+
+/// Один элемент урока: лицевая/тыльная сторона карточки + опциональная
+/// развёрнутая теория (мнемоника кандзи, разбор частицы/грамматики).
+class LessonItem {
+  final int contentItemId;
+  final String front;
+  final String back;
+  final String? theory;
+
+  LessonItem({required this.contentItemId, required this.front, required this.back, required this.theory});
 }
 
 /// Запросы для экрана «Дорожная карта» — тонкий слой поверх Drift,
@@ -28,30 +41,97 @@ class RoadmapRepository {
   final AppDatabase db;
   RoadmapRepository(this.db);
 
+  /// Статус юнита — не то, что заранее записано в базу «на всякий
+  /// случай», а вычисляется на лету: если реально начат/пройден — берём
+  /// это; иначе, если все предпосылки (`unit_prerequisites`) выполнены —
+  /// он «unlocked», иначе «locked». Так нет риска рассинхронизации
+  /// между сохранённым статусом и фактическим прогрессом.
   Future<List<RoadmapUnit>> loadUnits(String userId) async {
-    final query = db.select(db.units).join([
-      leftOuterJoin(
-        db.unitProgress,
-        db.unitProgress.unitId.equalsExp(db.units.id) &
-            db.unitProgress.userId.equals(userId),
-      ),
-    ])
-      ..orderBy([OrderingTerm.asc(db.units.sortOrder)]);
+    final units = await (db.select(db.units)..orderBy([(t) => OrderingTerm.asc(t.sortOrder)])).get();
+    final progressRows = await (db.select(db.unitProgress)..where((t) => t.userId.equals(userId))).get();
+    final progressByUnit = {for (final p in progressRows) p.unitId: p.status};
 
-    final rows = await query.get();
-    return rows.map((row) {
-      final unit = row.readTable(db.units);
-      final progress = row.readTableOrNull(db.unitProgress);
+    final prereqRows = await db.select(db.unitPrerequisites).get();
+    final prereqsByUnit = <int, List<int>>{};
+    for (final r in prereqRows) {
+      prereqsByUnit.putIfAbsent(r.unitId, () => []).add(r.requiresUnitId);
+    }
+
+    return units.map((unit) {
+      final explicit = progressByUnit[unit.id];
+      String status;
+      if (explicit == 'completed' || explicit == 'in_progress') {
+        status = explicit!;
+      } else {
+        final prereqs = prereqsByUnit[unit.id] ?? const [];
+        final allDone = prereqs.every((id) => progressByUnit[id] == 'completed');
+        status = allDone ? 'unlocked' : 'locked';
+      }
       return RoadmapUnit(
         id: unit.id,
         title: unit.title,
         subtitle: unit.subtitle,
+        description: unit.description,
         kind: unit.kind,
         jlptLevel: unit.jlptLevel,
         sortOrder: unit.sortOrder,
-        status: progress?.status ?? 'locked',
+        status: status,
       );
     }).toList();
+  }
+
+  Future<void> markUnitCompleted(String userId, int unitId) async {
+    await db.into(db.unitProgress).insertOnConflictUpdate(
+          UnitProgressCompanion.insert(
+            userId: userId,
+            unitId: unitId,
+            status: const Value('completed'),
+            completedAt: Value(DateTime.now().toIso8601String()),
+          ),
+        );
+  }
+
+  Future<void> markUnitStarted(String userId, int unitId) async {
+    final existing = await (db.select(db.unitProgress)
+          ..where((t) => t.userId.equals(userId) & t.unitId.equals(unitId)))
+        .getSingleOrNull();
+    if (existing != null) return;
+    await db.into(db.unitProgress).insert(
+          UnitProgressCompanion.insert(
+            userId: userId,
+            unitId: unitId,
+            status: const Value('in_progress'),
+            startedAt: Value(DateTime.now().toIso8601String()),
+          ),
+        );
+  }
+
+  /// Контент юнита (для экрана урока): элементы + их теория/подписи,
+  /// без знания вызывающей стороной устройства конкретных таблиц.
+  Future<List<LessonItem>> loadUnitLessonItems(int unitId) async {
+    final links = await (db.select(db.unitItems)..where((t) => t.unitId.equals(unitId))).get();
+    final items = <LessonItem>[];
+    for (final link in links) {
+      final ci = await (db.select(db.contentItems)..where((t) => t.id.equals(link.contentItemId))).getSingle();
+      switch (ci.kind) {
+        case 'kana':
+          final k = await (db.select(db.kana)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
+          items.add(LessonItem(contentItemId: ci.id, front: k.char, back: k.romaji, theory: null));
+        case 'kanji':
+          final k = await (db.select(db.kanji)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
+          items.add(LessonItem(contentItemId: ci.id, front: k.char, back: k.meaningsRu, theory: k.mnemonic));
+        case 'word':
+          final w = await (db.select(db.words)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
+          items.add(LessonItem(contentItemId: ci.id, front: w.surfaceForm, back: '${w.reading} — ${w.meaningsRu}', theory: null));
+        case 'particle':
+          final p = await (db.select(db.particles)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
+          items.add(LessonItem(contentItemId: ci.id, front: p.particle, back: p.shortDescription ?? '', theory: p.longTheory));
+        case 'grammar_point':
+          final g = await (db.select(db.grammarPoints)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
+          items.add(LessonItem(contentItemId: ci.id, front: g.title, back: g.pattern, theory: g.explanation));
+      }
+    }
+    return items;
   }
 
   Future<List<String>> loadPrerequisiteTitles(int unitId) async {

@@ -1,0 +1,240 @@
+import 'package:flutter/material.dart';
+
+import '../../data/database.dart';
+import '../../data/seed/srs_enrollment.dart';
+import '../../theme/app_theme.dart';
+import '../roadmap/roadmap_repository.dart';
+
+/// Урок одного юнита: сначала теория (текст), потом практика —
+/// пролистать каждый элемент юнита лицом/изнанкой. По завершении юнит
+/// отмечается пройденным и весь его контент зачисляется в Повторение.
+class LessonScreen extends StatefulWidget {
+  final AppDatabase db;
+  final String userId;
+  final RoadmapUnit unit;
+
+  const LessonScreen({super.key, required this.db, required this.userId, required this.unit});
+
+  @override
+  State<LessonScreen> createState() => _LessonScreenState();
+}
+
+enum _Stage { loading, theory, practice, done }
+
+class _LessonScreenState extends State<LessonScreen> {
+  late final RoadmapRepository _repo;
+  _Stage _stage = _Stage.loading;
+  List<LessonItem> _items = [];
+  int _index = 0;
+  bool _flipped = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _repo = RoadmapRepository(widget.db);
+    _load();
+  }
+
+  Future<void> _load() async {
+    final items = await _repo.loadUnitLessonItems(widget.unit.id);
+    await _repo.markUnitStarted(widget.userId, widget.unit.id);
+    if (!mounted) return;
+    setState(() {
+      _items = items;
+      _stage = _Stage.theory;
+    });
+  }
+
+  Future<void> _finish() async {
+    await _repo.markUnitCompleted(widget.userId, widget.unit.id);
+    await enrollAccessibleContentInSrs(widget.db, widget.userId);
+    if (!mounted) return;
+    setState(() => _stage = _Stage.done);
+  }
+
+  void _nextPracticeItem() {
+    if (_index + 1 >= _items.length) {
+      _finish();
+      return;
+    }
+    setState(() {
+      _index++;
+      _flipped = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.unit.title)),
+      body: switch (_stage) {
+        _Stage.loading => const Center(child: CircularProgressIndicator()),
+        _Stage.theory => _buildTheory(),
+        _Stage.practice => _items.isEmpty ? _buildNoContent() : _buildPractice(),
+        _Stage.done => _buildDone(),
+      },
+    );
+  }
+
+  Widget _buildTheory() {
+    final unit = widget.unit;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 620),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'ТЕОРИЯ',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                unit.title,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Theme.of(context).colors.ink),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _fallbackTheory(unit),
+                style: const TextStyle(fontSize: 16, height: 1.6),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => setState(() => _stage = _Stage.practice),
+                  style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  child: Text(_items.isEmpty ? 'Понятно' : 'К практике (${_items.length})'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _fallbackTheory(RoadmapUnit unit) {
+    return unit.description ??
+        unit.subtitle ??
+        'Материалы по этой теме появятся в одной из следующих сессий.';
+  }
+
+  Widget _buildNoContent() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Практика для этого юнита ещё не наполнена.'),
+            const SizedBox(height: 16),
+            FilledButton(onPressed: _finish, child: const Text('Понятно, закрыть')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPractice() {
+    final item = _items[_index];
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(value: (_index + 1) / _items.length),
+              const SizedBox(height: 8),
+              Text('${_index + 1} / ${_items.length}'),
+              const SizedBox(height: 32),
+              GestureDetector(
+                onTap: () => setState(() => _flipped = !_flipped),
+                child: Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(minHeight: 320),
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(item.front, style: const TextStyle(fontFamily: AppFonts.jp, fontSize: 120, height: 1)),
+                      if (_flipped) ...[
+                        const SizedBox(height: 24),
+                        Text(item.back, style: const TextStyle(fontSize: 22), textAlign: TextAlign.center),
+                        if (item.theory != null) ...[
+                          const SizedBox(height: 12),
+                          Text(item.theory!, style: const TextStyle(fontSize: 14, color: Colors.grey), textAlign: TextAlign.center),
+                        ],
+                      ] else
+                        const Padding(
+                          padding: EdgeInsets.only(top: 12),
+                          child: Text('нажми, чтобы перевернуть', style: TextStyle(color: Colors.grey, fontSize: 15)),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _flipped ? _nextPracticeItem : () => setState(() => _flipped = true),
+                  style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  child: Text(!_flipped ? 'Показать ответ' : (_index + 1 >= _items.length ? 'Завершить' : 'Дальше')),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDone() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle, size: 56, color: Colors.green),
+            const SizedBox(height: 16),
+            Text(
+              'Юнит «${widget.unit.title}» пройден',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Theme.of(context).colors.ink),
+            ),
+            const SizedBox(height: 8),
+            Text('${_items.length} элементов добавлено в Повторение', style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('На Дорожную карту'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

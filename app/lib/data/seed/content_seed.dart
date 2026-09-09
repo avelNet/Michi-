@@ -166,10 +166,16 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
       char: '語', meanings: ['язык', 'слово'], onYomi: ['ゴ'], kunYomi: ['かた.る'], strokes: 14,
     );
 
-    await insertWord(surface: '食べる', reading: 'たべる', meanings: ['есть, кушать'], kanjiContentIds: [kanjiShoku]);
-    await insertWord(surface: '人', reading: 'ひと', meanings: ['человек'], kanjiContentIds: [kanjiHito]);
-    await insertWord(surface: '日本', reading: 'にほん', meanings: ['Япония'], kanjiContentIds: [kanjiHi, kanjiHon]);
-    await insertWord(
+    final wordTaberu = await insertWord(
+      surface: '食べる', reading: 'たべる', meanings: ['есть, кушать'], kanjiContentIds: [kanjiShoku],
+    );
+    final wordHito = await insertWord(
+      surface: '人', reading: 'ひと', meanings: ['человек'], kanjiContentIds: [kanjiHito],
+    );
+    final wordNihon = await insertWord(
+      surface: '日本', reading: 'にほん', meanings: ['Япония'], kanjiContentIds: [kanjiHi, kanjiHon],
+    );
+    final wordNihongo = await insertWord(
       surface: '日本語', reading: 'にほんご', meanings: ['японский язык'],
       kanjiContentIds: [kanjiHi, kanjiHon, kanjiGo],
     );
@@ -242,18 +248,53 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
           );
     }
 
+    const strokeOrderRules =
+        '\n\nПорядок черт подчиняется общим правилам (одинаковым для каны и '
+        'кандзи):\n'
+        '• сверху вниз;\n'
+        '• слева направо;\n'
+        '• горизонтальная черта обычно пишется раньше пересекающей её '
+        'вертикальной;\n'
+        '• при симметричных знаках сначала центр, потом левая часть, потом '
+        'правая;\n'
+        '• черта, охватывающая знак снаружи (рамка), пишется раньше '
+        'внутреннего содержимого, а замыкается — после него;\n'
+        '• сквозная черта, проходящая через весь знак, обычно пишется последней.\n'
+        'Точный порядок для каждого конкретного знака появится здесь позже '
+        '(по мере проверки данных) — сами правила уже можно применять.';
+
     final uHiragana = await insertUnit(
       title: 'Хирагана', subtitle: '46 знаков + сочетания', kind: 'kana', jlptLevel: 'N5', sortOrder: 1,
+      description: 'Хирагана — основная слоговая азбука японского языка, 46 базовых '
+          'знаков. Каждый знак читается ровно одним слогом (морой) и не меняет '
+          'произношения в зависимости от положения в слове — в отличие от букв '
+          'русского или английского алфавита. С хираганы пишутся окончания слов, '
+          'частицы и любые слова, для которых нет или не используется кандзи.'
+          '$strokeOrderRules',
     );
     final uKatakana = await insertUnit(
       title: 'Катакана', subtitle: '46 знаков + заимствования', kind: 'kana', jlptLevel: 'N5', sortOrder: 2,
+      description: 'Катакана — вторая азбука, ровно те же 46 звуков, что и в '
+          'хирагане, но другими знаками. Используется для заимствованных слов '
+          '(コーヒー — «кофе»), иностранных имён, названий животных и растений, '
+          'а также для эмоционального выделения слова — как в русском капслок.'
+          '$strokeOrderRules',
     );
     final uKanji1 = await insertUnit(
       title: 'Кандзи и слова I', subtitle: 'Первые иероглифы в связке со словами',
       kind: 'kanji_vocab', jlptLevel: 'N5', sortOrder: 3,
+      description: 'Кандзи не учат по одному — каждый иероглиф сразу привязан к '
+          'чтению каной и к реальным словам, где он встречается. Например 日 '
+          '(«день/солнце») и 本 («книга/основа») сами по себе — просто иероглифы, '
+          'а вместе — 日本 («Япония»), и ещё с 語 («язык») — 日本語 («японский '
+          'язык»). Это и есть принцип «кандзи в связке», а не в одиночку.',
     );
     final uParticles1 = await insertUnit(
       title: 'Частицы I', subtitle: 'は・が・を・に', kind: 'particle', jlptLevel: 'N5', sortOrder: 4,
+      description: 'Частицы — служебные слова, которые показывают роль каждого '
+          'слова в предложении: кто действует, над чем действие совершается, '
+          'куда направлено. Без них японское предложение не разобрать на части. '
+          'Здесь — четыре самые частотные: は, が, を, に.',
     );
     final uGrammar1 = await insertUnit(
       title: 'Грамматика N5 I', subtitle: 'です/ます, простые предложения',
@@ -305,28 +346,22 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
 
     await linkUnitItems(uHiragana, hiraganaIds.values);
     await linkUnitItems(uKatakana, katakanaIds.values);
-    await linkUnitItems(uKanji1, [kanjiShoku, kanjiHito, kanjiHi, kanjiHon, kanjiGo]);
+    // Кандзи вперемешку со словами, где они встречаются — юнит не должен
+    // показывать голые иероглифы без комбинаций (это и было замечено:
+    // слова создавались в базе, но не были привязаны к юниту).
+    await linkUnitItems(uKanji1, [
+      kanjiShoku, wordTaberu,
+      kanjiHito, wordHito,
+      kanjiHi, kanjiHon, wordNihon,
+      kanjiGo, wordNihongo,
+    ]);
     await linkUnitItems(uParticles1, [particleWa, particleGa, particleWo, particleNi]);
 
-    // ---- Прогресс демо-пользователя (наглядно повторяет состояние
-    // из макета: первые 3 юнита пройдены, 4-й — текущий) -----------------
-    Future<void> setProgress(int unitId, String status) {
-      return db.into(db.unitProgress).insert(
-            UnitProgressCompanion.insert(
-              userId: localUserId,
-              unitId: unitId,
-              status: Value(status),
-            ),
-          );
-    }
-
-    await setProgress(uHiragana, 'completed');
-    await setProgress(uKatakana, 'completed');
-    await setProgress(uKanji1, 'completed');
-    await setProgress(uParticles1, 'in_progress');
-    for (final u in [uGrammar1, uListening1, uKanji2, uParticles2, uGrammar2, uListening2, uMilestone]) {
-      await setProgress(u, 'locked');
-    }
+    // Прогресс не сеется вообще — никакого фейкового «уже пройдено».
+    // Статус каждого юнита вычисляется на лету из unit_prerequisites
+    // (см. RoadmapRepository.loadUnits): без прогресса юнит без
+    // предпосылок (Хирагана) сразу «unlocked», остальные — «locked».
+    // Реальный прогресс появляется только когда юзер проходит урок.
   });
 }
 

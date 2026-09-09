@@ -5,12 +5,16 @@ import 'package:flutter/material.dart';
 import '../../data/database.dart';
 import '../../data/seed/content_seed.dart';
 import '../../theme/app_theme.dart';
+import '../lesson/lesson_screen.dart';
 import '../review/review_screen.dart';
 import 'roadmap_repository.dart';
 
 class RoadmapScreen extends StatefulWidget {
   final AppDatabase db;
-  const RoadmapScreen({super.key, required this.db});
+  final bool isDark;
+  final VoidCallback onToggleTheme;
+
+  const RoadmapScreen({super.key, required this.db, required this.isDark, required this.onToggleTheme});
 
   @override
   State<RoadmapScreen> createState() => _RoadmapScreenState();
@@ -20,7 +24,6 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
   late final RoadmapRepository _repo;
   late Future<_RoadmapData> _future;
   int? _selectedUnitId;
-  bool _isDark = false;
 
   static const _pathWidth = 600.0;
   static const _startY = 90.0;
@@ -46,29 +49,25 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = buildAppTheme(_isDark ? Brightness.dark : Brightness.light);
-    final colors = theme.colors;
+    final colors = Theme.of(context).colors;
 
-    return Theme(
-      data: theme,
-      child: Scaffold(
-        backgroundColor: colors.bg,
-        body: FutureBuilder<_RoadmapData>(
-          future: _future,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final data = snapshot.data!;
-            return Row(
-              children: [
-                _NavRail(colors: colors, onOpenReview: _openReview),
-                Expanded(child: _buildPathArea(colors, data)),
-                _Sidebar(colors: colors, data: data, onOpenReview: _openReview),
-              ],
-            );
-          },
-        ),
+    return Scaffold(
+      backgroundColor: colors.bg,
+      body: FutureBuilder<_RoadmapData>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final data = snapshot.data!;
+          return Row(
+            children: [
+              _NavRail(colors: colors, onOpenReview: _openReview),
+              Expanded(child: _buildPathArea(colors, data)),
+              _Sidebar(colors: colors, data: data, onOpenReview: _openReview),
+            ],
+          );
+        },
       ),
     );
   }
@@ -78,6 +77,18 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
       MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db)),
     );
     setState(() => _future = _load());
+  }
+
+  Future<void> _openLesson(RoadmapUnit unit) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => LessonScreen(db: widget.db, userId: localUserId, unit: unit),
+      ),
+    );
+    setState(() {
+      _selectedUnitId = null;
+      _future = _load();
+    });
   }
 
   Widget _buildPathArea(AppColors colors, _RoadmapData data) {
@@ -108,7 +119,14 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('あなたの道 — ваш путь', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'あなたの道 — ваш путь',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: colors.ink,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       'Каждый узел приближает к пониманию живого текста',
@@ -118,8 +136,8 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                 ),
               ),
               IconButton(
-                onPressed: () => setState(() => _isDark = !_isDark),
-                icon: Icon(_isDark ? Icons.wb_sunny_outlined : Icons.dark_mode_outlined),
+                onPressed: widget.onToggleTheme,
+                icon: Icon(widget.isDark ? Icons.wb_sunny_outlined : Icons.dark_mode_outlined),
                 color: colors.inkSoft,
                 style: IconButton.styleFrom(
                   backgroundColor: colors.surface,
@@ -222,6 +240,8 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
         unit: unit,
         repo: _repo,
         onClose: () => setState(() => _selectedUnitId = null),
+        onOpen: () => _openLesson(unit),
+        onOpenReview: unit.status == 'completed' ? _openReview : null,
       ),
     );
   }
@@ -476,12 +496,16 @@ class _UnitPopover extends StatelessWidget {
   final RoadmapUnit unit;
   final RoadmapRepository repo;
   final VoidCallback onClose;
+  final VoidCallback onOpen;
+  final VoidCallback? onOpenReview;
 
   const _UnitPopover({
     required this.colors,
     required this.unit,
     required this.repo,
     required this.onClose,
+    required this.onOpen,
+    required this.onOpenReview,
   });
 
   @override
@@ -550,7 +574,7 @@ class _UnitPopover extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: isLocked ? null : () {},
+                onPressed: isLocked ? null : (isCompleted ? onOpenReview : onOpen),
                 style: FilledButton.styleFrom(
                   backgroundColor: isCompleted ? colors.surface2 : colors.accent,
                   foregroundColor: isCompleted ? colors.inkSoft : Colors.white,
@@ -559,7 +583,13 @@ class _UnitPopover extends StatelessWidget {
                   side: isCompleted ? BorderSide(color: colors.line) : null,
                 ),
                 child: Text(
-                  isLocked ? 'Заблокировано' : (isCompleted ? 'Повторить пройденное' : 'Продолжить'),
+                  isLocked
+                      ? 'Заблокировано'
+                      : isCompleted
+                          ? 'Повторить пройденное'
+                          : unit.status == 'in_progress'
+                              ? 'Продолжить'
+                              : 'Начать',
                 ),
               ),
             ),

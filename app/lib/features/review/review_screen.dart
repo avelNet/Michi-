@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/database.dart';
 import '../../data/seed/content_seed.dart';
 import '../../domain/srs/srs_scheduler.dart';
+import '../../theme/app_theme.dart';
 import 'review_repository.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -66,7 +67,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                Text('Осталось: ${_queue.length}', style: Theme.of(context).textTheme.bodyMedium),
+                Text('Осталось: ${_queue.length}', style: TextStyle(color: Theme.of(context).colors.inkSoft)),
                 const SizedBox(height: 16),
                 Expanded(
                   child: Center(
@@ -86,14 +87,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             Text(
                               card.front,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontFamily: AppFonts.jp,
+                                fontSize: 56,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colors.ink,
+                              ),
                             ),
                             if (_revealed) ...[
                               const Divider(height: 40),
                               Text(
                                 card.back,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 18),
+                                style: TextStyle(fontSize: 18, color: Theme.of(context).colors.ink),
                               ),
                             ] else ...[
                               const SizedBox(height: 20),
@@ -151,7 +157,7 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             doneCount > 0 ? 'Готово! Повторено карточек: $doneCount' : 'Пока нечего повторять',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Theme.of(context).colors.ink),
           ),
         ],
       ),
