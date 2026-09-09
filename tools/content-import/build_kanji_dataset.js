@@ -70,12 +70,12 @@ function translateMeanings(englishMeanings) {
     if (MEANING_RU[key]) ru.push(MEANING_RU[key]);
     else untranslated.push(m);
   }
-  if (ru.length > 0) return [...new Set(ru)];
-  // Ничего не нашли в словаре вообще — честно оставляем английский, но
-  // с пометкой, чтобы это не выглядело как перевод (было тихо и незаметно
-  // раньше — реальный баг, из-за которого в интерфейсе всплывал сырой
-  // английский текст без объяснения, что это такое).
-  return untranslated.map((m) => `${m} (en)`);
+  // Каждый непереведённый термин остаётся честно помеченным "(en)", а не
+  // молча выбрасывается, когда рядом есть хотя бы один переведённый смысл.
+  // Раньше был реальный баг: если translateMeanings находило перевод для
+  // ЛЮБОГО из значений, все непереведённые соседние значения тихо
+  // терялись без следа — не показывались ни на русском, ни на английском.
+  return [...new Set(ru), ...untranslated.map((m) => `${m} (en)`)];
 }
 
 const BAD_POS = /\b(vulg|sl|arch|obs|derog|male-sl|fem-sl|X|organization|company|abbr|hist|Buddh|work|fict|myth|ship|given|surname)\b/;
@@ -132,14 +132,20 @@ async function main() {
   const chars = withLevel.map((k) => k.kanji);
   const vocabIndex = buildVocabIndex(chars);
 
-  const out = [];
+  // Слоты заполняются по индексу из jlpt-kanji.json, а не в порядке
+  // завершения запроса — иначе при 12 параллельных воркерах порядок
+  // кандзи в выходном файле каждый раз получался случайным (кто из сети
+  // ответил первым), что превращало любой повторный запуск скрипта в
+  // огромный нечитаемый git-diff даже без реальных изменений в данных.
+  const out = new Array(withLevel.length);
   const CONCURRENCY = 12;
   let cursor = 0;
   let done = 0;
 
   async function worker() {
     while (cursor < withLevel.length) {
-      const k = withLevel[cursor++];
+      const myIndex = cursor++;
+      const k = withLevel[myIndex];
       const api = await fetchKanjiApi(k.kanji).catch(() => null);
       done++;
       if (!api) {
@@ -154,7 +160,7 @@ async function main() {
         .sort((a, b) => priority(a.len) - priority(b.len))
         .slice(0, 3);
 
-      out.push({
+      out[myIndex] = {
         char: k.kanji,
         jlpt: k.jlpt,
         frequency: k.frequency ?? null,
@@ -164,15 +170,16 @@ async function main() {
         meanings_en: api.meanings || [],
         meanings_ru: translateMeanings(api.meanings || []),
         words,
-      });
+      };
       if (done % 50 === 0) console.error(`...${done}/${withLevel.length}`);
     }
   }
 
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
-  fs.writeFileSync(path.join(DIR, 'kanji_final.json'), JSON.stringify(out, null, 2), 'utf8');
-  console.error(`done: ${out.length} kanji written to kanji_final.json`);
+  const result = out.filter(Boolean);
+  fs.writeFileSync(path.join(DIR, 'kanji_final.json'), JSON.stringify(result, null, 2), 'utf8');
+  console.error(`done: ${result.length} kanji written to kanji_final.json`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

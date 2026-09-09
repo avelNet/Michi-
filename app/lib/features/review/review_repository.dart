@@ -1,9 +1,8 @@
-import 'dart:convert';
-
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/database.dart';
+import '../../domain/japanese/dictionary_text.dart';
 import '../../domain/japanese/romaji.dart';
 import '../../domain/srs/srs_scheduler.dart';
 
@@ -90,15 +89,15 @@ class ReviewRepository {
             .getSingleOrNull();
         if (k == null) return null;
         final readings = [
-          if (k.onYomi != null) 'он: ${_joinReadingsWithRomaji(k.onYomi!)}',
-          if (k.kunYomi != null) 'кун: ${_joinReadingsWithRomaji(k.kunYomi!)}',
+          if (k.onYomi != null) 'он: ${_readingsWithRomaji(k.onYomi!)}',
+          if (k.kunYomi != null) 'кун: ${_readingsWithRomaji(k.kunYomi!)}',
         ].join('\n');
-        return (k.char, '${_joinJsonArray(k.meaningsRu)}\n$readings');
+        return (k.char, '${joinCleanMeanings(k.meaningsRu)}\n$readings');
       case 'word':
         final w = await (db.select(db.words)..where((t) => t.contentItemId.equals(contentItemId)))
             .getSingleOrNull();
         if (w == null) return null;
-        return (w.surfaceForm, '${w.reading} (${kanaToRomaji(w.reading)})\n${_joinJsonArray(w.meaningsRu)}');
+        return (w.surfaceForm, '${w.reading} (${kanaToRomaji(w.reading)})\n${joinCleanMeanings(w.meaningsRu)}');
       case 'particle':
         final p = await (db.select(db.particles)..where((t) => t.contentItemId.equals(contentItemId)))
             .getSingleOrNull();
@@ -118,31 +117,13 @@ class ReviewRepository {
     final row = await query.getSingleOrNull();
     if (row == null) return null;
     final w = row.readTable(db.words);
-    return '${w.surfaceForm} — ${_primaryMeaning(w.meaningsRu)}';
-  }
-
-  /// Настоящий JSON-разбор — значения сами часто содержат запятую внутри
-  /// одного смысла («человек, люди»), наивный split(',') резал бы их
-  /// на лишние куски.
-  List<String> _parseJsonArray(String jsonArray) {
-    final decoded = jsonDecode(jsonArray);
-    return (decoded as List).map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
-  }
-
-  String _joinJsonArray(String jsonArray) => _parseJsonArray(jsonArray).join(', ');
-
-  /// Только первое (основное) значение — без остальных пронумерованных
-  /// смыслов и словарных отсылок, для беглого контекста на карточке.
-  String _primaryMeaning(String jsonArray) {
-    final list = _parseJsonArray(jsonArray);
-    if (list.isEmpty) return '';
-    return list.first.replaceFirst(RegExp(r'^\d+\)\s*:?\s*'), '');
+    return '${w.surfaceForm} (${kanaToRomaji(w.reading)}) — ${primaryCleanMeaning(w.meaningsRu)}';
   }
 
   /// Каждое чтение из JSON-массива — с ромадзи рядом, для тех, кому пока
   /// проще ориентироваться по латинице, чем бегло читать кану.
-  String _joinReadingsWithRomaji(String jsonArray) {
-    return _parseJsonArray(jsonArray).map((r) => '$r (${kanaToRomaji(r)})').join(', ');
+  String _readingsWithRomaji(String jsonArray) {
+    return parseMeaningsJson(jsonArray).map((r) => '$r (${kanaToRomaji(r)})').join(', ');
   }
 
   Future<void> recordReview({

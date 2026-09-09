@@ -8,3 +8,14 @@ desktop.ini
 
 # Локальные настройки Claude Code для этой машины/сессии
 .claude/settings.local.json
+
+# tools/content-import: разовые скрипты сборки датасета кандзи.
+# Сырые исходники скачиваются вручную с github.com/AnchorI/jlpt-kanji-dictionary
+# (см. tools/content-import/README.md) — большие (~57МБ), не наши, не хранятся
+# в репозитории. Промежуточный вывод скрипта и логи запуска — тоже не нужны,
+# коммитится только готовый app/assets/content/kanji.json.
+tools/content-import/jlpt-kanji.json
+tools/content-import/dictionary_part_*.json
+tools/content-import/kanji_final.json
+tools/content-import/build_output*.log
+app/build_log*.txt

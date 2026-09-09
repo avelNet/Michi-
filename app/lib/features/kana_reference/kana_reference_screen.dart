@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 import '../../data/database.dart';
+import '../../domain/japanese/dictionary_text.dart';
 import '../../domain/japanese/romaji.dart';
 import '../../theme/app_theme.dart';
 import 'kana_reference_repository.dart';
@@ -242,13 +241,10 @@ class _SelectedKanaDetail extends StatelessWidget {
   /// Каждый смысл слова — отдельным пунктом, без склеивания через
   /// запятую. Убираем сырую нумерацию вида "1) "/"2): " из источника —
   /// список сам по себе уже нумерует смыслы визуально (буллетом), число
-  /// в тексте было бы дублированием.
+  /// в тексте было бы дублированием. Плюс словарные сокращения
+  /// («прост.», «межд.» и т.п.) разворачиваются в читаемые слова —
+  /// одна и та же логика, что и в остальных карточках приложения.
   List<String> _senses(String jsonArray) {
-    final decoded = jsonDecode(jsonArray) as List;
-    return decoded
-        .map((e) => e.toString())
-        .where((s) => s.isNotEmpty)
-        .map((s) => s.replaceFirst(RegExp(r'^\d+\)\s*:?\s*'), ''))
-        .toList();
+    return parseMeaningsJson(jsonArray).map(cleanSense).toList();
   }
 }

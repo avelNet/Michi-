@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:drift/drift.dart';
 
 import '../../data/database.dart';
+import '../../domain/japanese/dictionary_text.dart';
 import '../../domain/japanese/romaji.dart';
 
 class RoadmapUnit {
@@ -144,8 +143,8 @@ class RoadmapRepository {
           items.add(LessonItem(contentItemId: ci.id, front: k.char, back: k.romaji, theory: await _kanaExamples(ci.id)));
         case 'kanji':
           final k = await (db.select(db.kanji)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
-          final onRu = k.onYomi != null ? _joinReadingsWithRomaji(k.onYomi!) : null;
-          final kunRu = k.kunYomi != null ? _joinReadingsWithRomaji(k.kunYomi!) : null;
+          final onRu = k.onYomi != null ? _readingsWithRomaji(k.onYomi!) : null;
+          final kunRu = k.kunYomi != null ? _readingsWithRomaji(k.kunYomi!) : null;
           final readingLines = [
             if (onRu != null && onRu.isNotEmpty) 'он: $onRu',
             if (kunRu != null && kunRu.isNotEmpty) 'кун: $kunRu',
@@ -153,7 +152,7 @@ class RoadmapRepository {
           items.add(LessonItem(
             contentItemId: ci.id,
             front: k.char,
-            back: '${_joinJsonArray(k.meaningsRu)}${readingLines.isEmpty ? '' : '\n$readingLines'}',
+            back: '${joinCleanMeanings(k.meaningsRu)}${readingLines.isEmpty ? '' : '\n$readingLines'}',
             theory: k.mnemonic,
           ));
         case 'word':
@@ -162,7 +161,7 @@ class RoadmapRepository {
           items.add(LessonItem(
             contentItemId: ci.id,
             front: w.surfaceForm,
-            back: '${w.reading} (${kanaToRomaji(w.reading)})\n${_joinJsonArray(w.meaningsRu)}',
+            back: '${w.reading} (${kanaToRomaji(w.reading)})\n${joinCleanMeanings(w.meaningsRu)}',
             theory: decomposition,
           ));
         case 'particle':
@@ -181,6 +180,10 @@ class RoadmapRepository {
   /// и то, что 国 значит «страна», а 民 значит «люди/народ» по отдельности.
   /// Так кандзи не теряется как отдельный смысл внутри сочетания, даже
   /// если само сочетание введено раньше своих частей.
+  String _readingsWithRomaji(String jsonArray) {
+    return parseMeaningsJson(jsonArray).map((r) => '$r (${kanaToRomaji(r)})').join(', ');
+  }
+
   Future<String?> _kanjiDecomposition(int wordContentItemId) async {
     final query = db.select(db.wordKanji).join([
       innerJoin(db.kanji, db.kanji.contentItemId.equalsExp(db.wordKanji.kanjiContentItemId)),
@@ -191,13 +194,14 @@ class RoadmapRepository {
 
     final parts = rows.map((row) {
       final k = row.readTable(db.kanji);
-      return '${k.char} (${_joinJsonArray(k.meaningsRu)})';
+      return '${k.char} (${joinCleanMeanings(k.meaningsRu)})';
     });
     return parts.join(' + ');
   }
 
   /// Слова-примеры, где встречается конкретный знак каны — чтобы символ
-  /// был виден не абстрактно, а в реальном слове.
+  /// был виден не абстрактно, а в реальном слове. С чтением и ромадзи —
+  /// слово может содержать кану, которую пользователь ещё не проходил.
   Future<String?> _kanaExamples(int kanaContentItemId) async {
     final query = db.select(db.wordKana).join([
       innerJoin(db.words, db.words.contentItemId.equalsExp(db.wordKana.wordContentItemId)),
@@ -209,34 +213,9 @@ class RoadmapRepository {
 
     final lines = rows.map((row) {
       final w = row.readTable(db.words);
-      return '${w.surfaceForm} — ${_primaryMeaning(w.meaningsRu)}';
+      return '${w.surfaceForm} (${kanaToRomaji(w.reading)}) — ${primaryCleanMeaning(w.meaningsRu)}';
     });
     return lines.join('\n');
-  }
-
-  /// Только первое (основное) значение слова, без остальных пронумерованных
-  /// смыслов и словарных отсылок — на карточке нужен беглый контекст,
-  /// а не полная словарная статья со всеми нюансами сразу.
-  String _primaryMeaning(String jsonArray) {
-    final list = _parseJsonArray(jsonArray);
-    if (list.isEmpty) return '';
-    return list.first.replaceFirst(RegExp(r'^\d+\)\s*:?\s*'), '');
-  }
-
-  /// Настоящий JSON-разбор, а не самодельный split(','). Значения часто
-  /// сами содержат запятую внутри одного смысла («человек, люди») —
-  /// наивный split резал бы их на лишние куски. Раньше здесь был именно
-  /// такой самодельный парсер — реальный баг, найденный на примере
-  /// «(кн. суф. …)» и подобных многозапятых значений.
-  List<String> _parseJsonArray(String jsonArray) {
-    final decoded = jsonDecode(jsonArray);
-    return (decoded as List).map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
-  }
-
-  String _joinJsonArray(String jsonArray) => _parseJsonArray(jsonArray).join(', ');
-
-  String _joinReadingsWithRomaji(String jsonArray) {
-    return _parseJsonArray(jsonArray).map((r) => '$r (${kanaToRomaji(r)})').join(', ');
   }
 
   /// Какие из этих элементов уже есть в SRS у пользователя — то есть уже
