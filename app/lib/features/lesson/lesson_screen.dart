@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/database.dart';
 import '../../data/seed/srs_enrollment.dart';
 import '../../theme/app_theme.dart';
+import '../review/review_screen.dart';
 import '../roadmap/roadmap_repository.dart';
 
 /// Урок одного юнита: сначала теория (текст), потом практика —
@@ -268,10 +269,35 @@ class _LessonScreenState extends State<LessonScreen> {
               style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('На Дорожную карту'),
-            ),
+            // Для кандзи — явный призыв повторить сразу же, а не молча
+            // надеяться, что до них дойдёт очередь в общем Повторении:
+            // именно закрепление сразу после изучения и даёт запоминание,
+            // просто пройти дальше по Карте для этого не достаточно.
+            if (widget.unit.kind == 'kanji_vocab' && !_alreadyFullyLearned) ...[
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db)),
+                    );
+                    if (!mounted) return;
+                    Navigator.of(context).pop(true);
+                  },
+                  icon: const Icon(Icons.style_outlined, size: 18),
+                  label: const Text('Повторить эти кандзи сейчас'),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('На Дорожную карту'),
+              ),
+            ] else
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('На Дорожную карту'),
+              ),
           ],
         ),
       ),

@@ -24,6 +24,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
   late final RoadmapRepository _repo;
   late Future<_RoadmapData> _future;
   int? _selectedUnitId;
+  bool _showKanjiPath = false;
 
   static const _pathWidth = 600.0;
   static const _startY = 90.0;
@@ -80,6 +81,33 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
   }
 
   Future<void> _openLesson(RoadmapUnit unit) async {
+    // Суточный лимит — только для кандзи, и только когда юнит ещё не
+    // начат (уже начатый сегодня же юнит всегда можно доучить).
+    if (unit.kind == 'kanji_vocab' && unit.status == 'unlocked') {
+      final limitReached = await _repo.kanjiDailyLimitReached(localUserId, excludingUnitId: unit.id);
+      if (!mounted) return;
+      if (limitReached) {
+        setState(() => _selectedUnitId = null);
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('На сегодня хватит кандзи'),
+            content: const Text(
+              'Один юнит кандзи в день — осознанное ограничение: больше '
+              'за раз реально не запоминается. Остальные разделы (кана, '
+              'частицы, грамматика, аудирование) под лимит не попадают — '
+              'ими можно заниматься сегодня сколько угодно. Возвращайся '
+              'к кандзи завтра.',
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Понятно')),
+            ],
+          ),
+        );
+        return;
+      }
+    }
+
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => LessonScreen(db: widget.db, userId: localUserId, unit: unit),
@@ -92,7 +120,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
   }
 
   Widget _buildPathArea(AppColors colors, _RoadmapData data) {
-    final units = data.units;
+    final units = data.units.where((u) => (u.kind == 'kanji_vocab') == _showKanjiPath).toList();
     final points = <Offset>[];
     for (var i = 0; i < units.length; i++) {
       final dx = i < _dxSequence.length ? _dxSequence[i] : 0.0;
@@ -120,7 +148,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'あなたの道 — ваш путь',
+                      _showKanjiPath ? '漢字の道 — путь кандзи' : 'あなたの道 — ваш путь',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -129,8 +157,16 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Каждый узел приближает к пониманию живого текста',
+                      _showKanjiPath
+                          ? 'Свой темп, не зависит от остального пути — максимум один юнит в день'
+                          : 'Каждый узел приближает к пониманию живого текста',
                       style: TextStyle(color: colors.muted, fontSize: 13.5),
+                    ),
+                    const SizedBox(height: 14),
+                    _PathSwitcher(
+                      colors: colors,
+                      showKanji: _showKanjiPath,
+                      onChanged: (v) => setState(() => _showKanjiPath = v),
                     ),
                   ],
                 ),
@@ -596,6 +632,59 @@ class _UnitPopover extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Переключатель «Основной путь / Кандзи» — оба живут на одном экране
+/// Карты (не отдельные вкладки), т.к. это один и тот же путь изучения,
+/// просто с двумя независимыми, не блокирующими друг друга треками.
+class _PathSwitcher extends StatelessWidget {
+  final AppColors colors;
+  final bool showKanji;
+  final ValueChanged<bool> onChanged;
+
+  const _PathSwitcher({required this.colors, required this.showKanji, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: colors.surface2,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _segment('Основной путь', selected: !showKanji, onTap: () => onChanged(false)),
+          _segment('Кандзи', selected: showKanji, onTap: () => onChanged(true)),
+        ],
+      ),
+    );
+  }
+
+  Widget _segment(String label, {required bool selected, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: selected ? colors.surface : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: selected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4)] : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            color: selected ? colors.ink : colors.muted,
+          ),
         ),
       ),
     );

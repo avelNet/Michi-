@@ -106,6 +106,28 @@ class RoadmapRepository {
         );
   }
 
+  /// Суточный лимит СПЕЦИФИЧНО на кандзи (не на остальной контент):
+  /// один юнит кандзи в день — не потому что "неудобно", а потому что
+  /// реально невозможно осилить больше за раз. `excludingUnitId`
+  /// позволяет не блокировать продолжение уже начатого сегодня же юнита.
+  Future<bool> kanjiDailyLimitReached(String userId, {required int excludingUnitId}) async {
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    final query = db.select(db.unitProgress).join([
+      innerJoin(db.units, db.units.id.equalsExp(db.unitProgress.unitId)),
+    ])
+      ..where(
+        db.unitProgress.userId.equals(userId) &
+            db.units.kind.equals('kanji_vocab') &
+            db.unitProgress.status.equals('completed') &
+            db.unitProgress.unitId.equals(excludingUnitId).not(),
+      );
+    final rows = await query.get();
+    return rows.any((row) {
+      final completedAt = row.readTable(db.unitProgress).completedAt;
+      return completedAt != null && completedAt.startsWith(today);
+    });
+  }
+
   /// Контент юнита (для экрана урока): элементы + их теория/подписи,
   /// без знания вызывающей стороной устройства конкретных таблиц.
   Future<List<LessonItem>> loadUnitLessonItems(int unitId) async {

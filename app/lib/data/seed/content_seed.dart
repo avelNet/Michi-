@@ -282,18 +282,42 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
       sortOrder: 3 + kanjiUnitIds.length + 7,
     );
 
-    final unitChain = [
-      uHiragana, uKatakana, ...kanjiUnitIds, uParticles1, uGrammar1,
-      uListening1, uParticles2, uGrammar2, uListening2,
-    ];
-    for (var i = 1; i < unitChain.length; i++) {
+    // Кана — строго последовательно, это общий шлюз перед всем остальным.
+    await db.into(db.unitPrerequisites).insert(
+          UnitPrerequisitesCompanion.insert(unitId: uKatakana, requiresUnitId: uHiragana),
+        );
+
+    // Дальше — ДВА параллельных трека, не блокирующих друг друга: кандзи
+    // и основной (частицы/грамматика/аудирование). Оба открываются сразу
+    // после каны, внутри каждого — последовательно, сходятся только на
+    // вехе. Можно в любой день выбрать, чем заниматься.
+    final mainChain = [uParticles1, uGrammar1, uListening1, uParticles2, uGrammar2, uListening2];
+
+    if (kanjiUnitIds.isNotEmpty) {
       await db.into(db.unitPrerequisites).insert(
-            UnitPrerequisitesCompanion.insert(unitId: unitChain[i], requiresUnitId: unitChain[i - 1]),
+            UnitPrerequisitesCompanion.insert(unitId: kanjiUnitIds.first, requiresUnitId: uKatakana),
           );
     }
-    for (final u in unitChain) {
+    await db.into(db.unitPrerequisites).insert(
+          UnitPrerequisitesCompanion.insert(unitId: mainChain.first, requiresUnitId: uKatakana),
+        );
+
+    for (var i = 1; i < kanjiUnitIds.length; i++) {
       await db.into(db.unitPrerequisites).insert(
-            UnitPrerequisitesCompanion.insert(unitId: uMilestone, requiresUnitId: u),
+            UnitPrerequisitesCompanion.insert(unitId: kanjiUnitIds[i], requiresUnitId: kanjiUnitIds[i - 1]),
+          );
+    }
+    for (var i = 1; i < mainChain.length; i++) {
+      await db.into(db.unitPrerequisites).insert(
+            UnitPrerequisitesCompanion.insert(unitId: mainChain[i], requiresUnitId: mainChain[i - 1]),
+          );
+    }
+
+    // Веха требует хвост обоих треков — а значит транзитивно весь путь
+    // до неё в каждом из них (внутренние зависимости уже это гарантируют).
+    for (final tail in [if (kanjiUnitIds.isNotEmpty) kanjiUnitIds.last, mainChain.last]) {
+      await db.into(db.unitPrerequisites).insert(
+            UnitPrerequisitesCompanion.insert(unitId: uMilestone, requiresUnitId: tail),
           );
     }
 
