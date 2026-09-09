@@ -67,14 +67,15 @@ class SessionController extends AsyncNotifier<String?> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefsKey, userId);
     await ref.read(authRepositoryProvider).touchLastActive(userId);
-    ref.invalidate(profileProvider);
+    // profileProvider / currentUserProvider читают sessionProvider —
+    // Riverpod пересоберёт их сам при смене состояния. Инвалидировать их
+    // отсюда нельзя: получается цикл (sessionProvider зависит от себя).
     state = AsyncData(userId);
   }
 
   Future<void> signOut() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_prefsKey);
-    ref.invalidate(profilesProvider);
     state = const AsyncData(null);
   }
 }

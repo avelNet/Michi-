@@ -294,6 +294,7 @@ class _Body extends ConsumerWidget {
     );
     if (ok != true) return;
     await ref.read(authRepositoryProvider).deleteProfile(userId);
+    ref.invalidate(profilesProvider);
     await ref.read(sessionProvider.notifier).signOut();
   }
 }
