@@ -59,6 +59,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
       ref.invalidate(profilesProvider);
       await ref.read(sessionProvider.notifier).signIn(id);
+      // Если экран был открыт поверх выбора профиля — убрать его со
+      // стека, иначе он останется поверх онбординга.
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       // Дальше маршрутизатор сам покажет онбординг.
     } catch (e) {
       if (mounted) setState(() => _error = 'Не удалось создать профиль: $e');
