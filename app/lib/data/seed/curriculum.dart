@@ -13,7 +13,28 @@ import '../database.dart';
 /// пересобирается заново. Существующие установки, где сид уже отработал
 /// старую (неполную) карту, до-наполняются без потери прогресса —
 /// content_item_id уже созданных элементов не меняются.
+/// Сигнатура текущего наполнения курса. Пока в базе не меньше этого —
+/// тяжёлую пересборку пропускаем (быстрый старт). При добавлении контента
+/// увеличить пороги — и на следующем запуске курс до-соберётся.
+const _curriculumSignature = (grammar: 34, particles: 16, words: 200);
+
 Future<void> ensureCurriculum(AppDatabase db) async {
+  final g = await db
+      .customSelect('SELECT COUNT(*) AS n FROM grammar_points')
+      .getSingle();
+  final p =
+      await db.customSelect('SELECT COUNT(*) AS n FROM particles').getSingle();
+  final w = await db.customSelect('SELECT COUNT(*) AS n FROM words').getSingle();
+  final hasN4 = await db
+      .customSelect("SELECT COUNT(*) AS n FROM units WHERE title = 'Веха N4'")
+      .getSingle();
+  if ((g.data['n'] as int? ?? 0) >= _curriculumSignature.grammar &&
+      (p.data['n'] as int? ?? 0) >= _curriculumSignature.particles &&
+      (w.data['n'] as int? ?? 0) >= _curriculumSignature.words &&
+      (hasN4.data['n'] as int? ?? 0) > 0) {
+    return;
+  }
+
   await db.transaction(() async {
     // ---------- helpers ------------------------------------------------
     Future<int> ensureUnit(
