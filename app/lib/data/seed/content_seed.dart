@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../database.dart';
+import 'kanji_import.dart';
 
 /// Единственный локальный профиль на устройстве до появления
 /// многопользовательских аккаунтов/синка (см. docs/database-design.md).
@@ -98,87 +99,14 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
     }
 
     // ---- Кандзи + слова (в связке, не по отдельности) ---------------
-    Future<int> insertKanji({
-      required String char,
-      required List<String> meanings,
-      required List<String> onYomi,
-      required List<String> kunYomi,
-      required int strokes,
-    }) async {
-      final contentId = await db.into(db.contentItems).insert(
-            ContentItemsCompanion.insert(kind: 'kanji', jlptLevel: const Value('N5')),
-          );
-      await db.into(db.kanji).insert(
-            KanjiCompanion.insert(
-              contentItemId: Value(contentId),
-              char: char,
-              meaningsRu: _jsonArray(meanings),
-              onYomi: Value(_jsonArray(onYomi)),
-              kunYomi: Value(_jsonArray(kunYomi)),
-              strokeCount: Value(strokes),
-            ),
-          );
-      return contentId;
-    }
-
-    Future<int> insertWord({
-      required String surface,
-      required String reading,
-      required List<String> meanings,
-      required List<int> kanjiContentIds,
-    }) async {
-      final contentId = await db.into(db.contentItems).insert(
-            ContentItemsCompanion.insert(kind: 'word', jlptLevel: const Value('N5')),
-          );
-      await db.into(db.words).insert(
-            WordsCompanion.insert(
-              contentItemId: Value(contentId),
-              surfaceForm: surface,
-              reading: reading,
-              meaningsRu: _jsonArray(meanings),
-            ),
-          );
-      for (var i = 0; i < kanjiContentIds.length; i++) {
-        await db.into(db.wordKanji).insert(
-              WordKanjiCompanion.insert(
-                wordContentItemId: contentId,
-                kanjiContentItemId: kanjiContentIds[i],
-                position: i,
-              ),
-            );
-      }
-      return contentId;
-    }
-
-    final kanjiShoku = await insertKanji(
-      char: '食', meanings: ['еда', 'есть'], onYomi: ['ショク'], kunYomi: ['た.べる'], strokes: 9,
-    );
-    final kanjiHito = await insertKanji(
-      char: '人', meanings: ['человек'], onYomi: ['ジン', 'ニン'], kunYomi: ['ひと'], strokes: 2,
-    );
-    final kanjiHi = await insertKanji(
-      char: '日', meanings: ['день', 'солнце'], onYomi: ['ニチ', 'ジツ'], kunYomi: ['ひ'], strokes: 4,
-    );
-    final kanjiHon = await insertKanji(
-      char: '本', meanings: ['книга', 'основа'], onYomi: ['ホン'], kunYomi: ['もと'], strokes: 5,
-    );
-    final kanjiGo = await insertKanji(
-      char: '語', meanings: ['язык', 'слово'], onYomi: ['ゴ'], kunYomi: ['かた.る'], strokes: 14,
-    );
-
-    final wordTaberu = await insertWord(
-      surface: '食べる', reading: 'たべる', meanings: ['есть, кушать'], kanjiContentIds: [kanjiShoku],
-    );
-    final wordHito = await insertWord(
-      surface: '人', reading: 'ひと', meanings: ['человек'], kanjiContentIds: [kanjiHito],
-    );
-    final wordNihon = await insertWord(
-      surface: '日本', reading: 'にほん', meanings: ['Япония'], kanjiContentIds: [kanjiHi, kanjiHon],
-    );
-    final wordNihongo = await insertWord(
-      surface: '日本語', reading: 'にほんご', meanings: ['японский язык'],
-      kanjiContentIds: [kanjiHi, kanjiHon, kanjiGo],
-    );
+    // Реальные данные, не выдуманные: список кандзи и частотность —
+    // AnchorI/jlpt-kanji-dictionary (MIT), он/кун-чтения — kanjiapi.dev
+    // (KANJIDIC2), слова-сочетания с русским переводом — тот же
+    // jlpt-kanji-dictionary (JMdict-based). Импортируются ВСЕ уровни
+    // (~2100 кандзи) сразу — не только N5, чтобы остальное было готово
+    // для будущих юнитов, не только для того, что уже на Карте.
+    final kanjiImport = await importKanjiDataset(db);
+    final n5Kanji = List<ImportedKanji>.from(kanjiImport.byLevel['N5'] ?? const []);
 
     // ---- Частицы ------------------------------------------------------
     Future<int> insertParticle({
@@ -280,17 +208,50 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
           'а также для эмоционального выделения слова — как в русском капслок.'
           '$strokeOrderRules',
     );
-    final uKanji1 = await insertUnit(
-      title: 'Кандзи и слова I', subtitle: 'Первые иероглифы в связке со словами',
-      kind: 'kanji_vocab', jlptLevel: 'N5', sortOrder: 3,
-      description: 'Кандзи не учат по одному — каждый иероглиф сразу привязан к '
-          'чтению каной и к реальным словам, где он встречается. Например 日 '
-          '(«день/солнце») и 本 («книга/основа») сами по себе — просто иероглифы, '
-          'а вместе — 日本 («Япония»), и ещё с 語 («язык») — 日本語 («японский '
-          'язык»). Это и есть принцип «кандзи в связке», а не в одиночку.',
-    );
+    Future<void> linkUnitItems(int unitId, Iterable<int> contentIds) async {
+      for (final id in contentIds) {
+        await db.into(db.unitItems).insert(
+              UnitItemsCompanion.insert(unitId: unitId, contentItemId: id),
+              mode: InsertMode.insertOrIgnore,
+            );
+      }
+    }
+
+    // Реальных N5-кандзи 80 (не выдуманное "100+" — ровно то, что даёт
+    // источник) — одним юнитом было бы слишком много карточек за раз,
+    // поэтому дробим на несколько по ~20. Исходный датасет уже упорядочен
+    // по частотности использования, порядок сохраняется как есть.
+    const chunkSize = 20;
+    final kanjiUnitIds = <int>[];
+    for (var start = 0; start < n5Kanji.length; start += chunkSize) {
+      final chunk = n5Kanji.sublist(start, (start + chunkSize).clamp(0, n5Kanji.length));
+      final chunkIndex = kanjiUnitIds.length + 1;
+      final roman = ['I', 'II', 'III', 'IV', 'V', 'VI'][kanjiUnitIds.length];
+      final unitId = await insertUnit(
+        title: 'Кандзи и слова $roman',
+        subtitle: '${chunk.length} иероглифов в связке со словами',
+        kind: 'kanji_vocab', jlptLevel: 'N5', sortOrder: 3 + kanjiUnitIds.length,
+        description: chunkIndex == 1
+            ? 'Кандзи не учат по одному — каждый иероглиф сразу привязан к '
+                'чтению каной и к реальным словам, где он встречается. Например 日 '
+                '(«день/солнце») и 本 («книга/основа») сами по себе — просто иероглифы, '
+                'а вместе — 日本 («Япония»). Это и есть принцип «кандзи в связке», а не '
+                'в одиночку — так учится каждый следующий иероглиф.'
+            : 'Ещё ${chunk.length} иероглифов N5, тоже сразу со словами, где они '
+                'встречаются.',
+      );
+      final itemIds = <int>[];
+      for (final k in chunk) {
+        itemIds.add(k.contentItemId);
+        itemIds.addAll(k.wordContentItemIds);
+      }
+      await linkUnitItems(unitId, itemIds);
+      kanjiUnitIds.add(unitId);
+    }
+
     final uParticles1 = await insertUnit(
-      title: 'Частицы I', subtitle: 'は・が・を・に', kind: 'particle', jlptLevel: 'N5', sortOrder: 4,
+      title: 'Частицы I', subtitle: 'は・が・を・に', kind: 'particle', jlptLevel: 'N5',
+      sortOrder: 3 + kanjiUnitIds.length + 1,
       description: 'Частицы — служебные слова, которые показывают роль каждого '
           'слова в предложении: кто действует, над чем действие совершается, '
           'куда направлено. Без них японское предложение не разобрать на части. '
@@ -298,32 +259,32 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
     );
     final uGrammar1 = await insertUnit(
       title: 'Грамматика N5 I', subtitle: 'です/ます, простые предложения',
-      kind: 'grammar', jlptLevel: 'N5', sortOrder: 5,
+      kind: 'grammar', jlptLevel: 'N5', sortOrder: 3 + kanjiUnitIds.length + 2,
     );
     final uListening1 = await insertUnit(
-      title: 'Аудирование I', subtitle: 'Базовые фразы на слух', kind: 'listening', jlptLevel: 'N5', sortOrder: 6,
-    );
-    final uKanji2 = await insertUnit(
-      title: 'Кандзи и слова II', subtitle: 'Составные слова', kind: 'kanji_vocab', jlptLevel: 'N5', sortOrder: 7,
+      title: 'Аудирование I', subtitle: 'Базовые фразы на слух', kind: 'listening', jlptLevel: 'N5',
+      sortOrder: 3 + kanjiUnitIds.length + 3,
     );
     final uParticles2 = await insertUnit(
-      title: 'Частицы II', subtitle: 'で・と・も・から・まで', kind: 'particle', jlptLevel: 'N5', sortOrder: 8,
+      title: 'Частицы II', subtitle: 'で・と・も・から・まで', kind: 'particle', jlptLevel: 'N5',
+      sortOrder: 3 + kanjiUnitIds.length + 4,
     );
     final uGrammar2 = await insertUnit(
       title: 'Грамматика N5 II', subtitle: 'て-форма, просьбы, желания',
-      kind: 'grammar', jlptLevel: 'N5', sortOrder: 9,
+      kind: 'grammar', jlptLevel: 'N5', sortOrder: 3 + kanjiUnitIds.length + 5,
     );
     final uListening2 = await insertUnit(
       title: 'Аудирование II', subtitle: 'Диалоги в естественном темпе',
-      kind: 'listening', jlptLevel: 'N5', sortOrder: 10,
+      kind: 'listening', jlptLevel: 'N5', sortOrder: 3 + kanjiUnitIds.length + 6,
     );
     final uMilestone = await insertUnit(
-      title: 'Веха N5', subtitle: 'Контрольная проверка уровня', kind: 'milestone', jlptLevel: 'N5', sortOrder: 11,
+      title: 'Веха N5', subtitle: 'Контрольная проверка уровня', kind: 'milestone', jlptLevel: 'N5',
+      sortOrder: 3 + kanjiUnitIds.length + 7,
     );
 
     final unitChain = [
-      uHiragana, uKatakana, uKanji1, uParticles1, uGrammar1,
-      uListening1, uKanji2, uParticles2, uGrammar2, uListening2,
+      uHiragana, uKatakana, ...kanjiUnitIds, uParticles1, uGrammar1,
+      uListening1, uParticles2, uGrammar2, uListening2,
     ];
     for (var i = 1; i < unitChain.length; i++) {
       await db.into(db.unitPrerequisites).insert(
@@ -336,25 +297,8 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
           );
     }
 
-    Future<void> linkUnitItems(int unitId, Iterable<int> contentIds) async {
-      for (final id in contentIds) {
-        await db.into(db.unitItems).insert(
-              UnitItemsCompanion.insert(unitId: unitId, contentItemId: id),
-            );
-      }
-    }
-
     await linkUnitItems(uHiragana, hiraganaIds.values);
     await linkUnitItems(uKatakana, katakanaIds.values);
-    // Кандзи вперемешку со словами, где они встречаются — юнит не должен
-    // показывать голые иероглифы без комбинаций (это и было замечено:
-    // слова создавались в базе, но не были привязаны к юниту).
-    await linkUnitItems(uKanji1, [
-      kanjiShoku, wordTaberu,
-      kanjiHito, wordHito,
-      kanjiHi, kanjiHon, wordNihon,
-      kanjiGo, wordNihongo,
-    ]);
     await linkUnitItems(uParticles1, [particleWa, particleGa, particleWo, particleNi]);
 
     // Прогресс не сеется вообще — никакого фейкового «уже пройдено».
@@ -363,9 +307,4 @@ Future<void> seedContentIfEmpty(AppDatabase db) async {
     // предпосылок (Хирагана) сразу «unlocked», остальные — «locked».
     // Реальный прогресс появляется только когда юзер проходит урок.
   });
-}
-
-String _jsonArray(List<String> items) {
-  final escaped = items.map((s) => '"${s.replaceAll('"', '\\"')}"').join(',');
-  return '[$escaped]';
 }

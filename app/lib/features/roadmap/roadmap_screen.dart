@@ -480,7 +480,9 @@ class _NodeCircleState extends State<_NodeCircle> with SingleTickerProviderState
       case 'kana':
         return unit.title.startsWith('Хирагана') ? 'あ' : 'カ';
       case 'kanji_vocab':
-        return '語';
+        return '漢'; // "кандзи" — нейтральная иконка категории, юниты
+        // отличаются друг от друга по названию и реальному содержимому,
+        // а не по значку.
       case 'particle':
         return 'は';
       case 'grammar':
