@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../data/database.dart';
 import '../../domain/srs/srs_scheduler.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/hint_banner.dart';
+import '../hints/hint_repository.dart';
 import '../stats/activity_tracker.dart';
 import 'review_repository.dart';
 
@@ -97,6 +99,22 @@ class _ReviewScreenState extends State<ReviewScreen> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: const HintBanner(
+                    hintKey: HintKeys.review,
+                    title: 'Интервальное повторение',
+                    body: 'Вспомните ответ, нажмите на карточку — и честно '
+                        'оцените себя. От оценки зависит, когда карточка '
+                        'вернётся:',
+                    bullets: [
+                      '«Забыл» — заново, через несколько минут',
+                      '«Трудно» — скоро, интервал почти не растёт',
+                      '«Хорошо» — обычный рост интервала',
+                      '«Легко» — большой скачок вперёд',
+                    ],
+                  ),
+                ),
                 Text('Осталось: ${_queue.length}', style: TextStyle(color: Theme.of(context).colors.inkSoft)),
                 const SizedBox(height: 16),
                 Expanded(

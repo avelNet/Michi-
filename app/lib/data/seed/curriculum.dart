@@ -245,6 +245,56 @@ Future<void> ensureCurriculum(AppDatabase db) async {
     await link(uListening1, await wordIds(listeningI));
     await link(uListening2, await wordIds(listeningII));
 
+    // ---------- N4: каркас трека кандзи (данные уже в базе) --------
+    // 170 кандзи N4 импортированы вместе с N5 — раскладываем их в юниты
+    // по 25, чтобы трек кандзи продолжался за N5, а не обрывался.
+    final n4KanjiUnitIds = <int>[];
+    final n4Kanji = await (db.select(db.contentItems)
+          ..where((t) => t.kind.equals('kanji') & t.jlptLevel.equals('N4'))
+          ..orderBy([(t) => OrderingTerm.asc(t.id)]))
+        .get();
+    if (n4Kanji.isNotEmpty) {
+      const chunk = 25;
+      final roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+      for (var start = 0; start < n4Kanji.length; start += chunk) {
+        final part = n4Kanji.sublist(start, (start + chunk).clamp(0, n4Kanji.length));
+        final idx = n4KanjiUnitIds.length;
+        final unitId = await ensureUnit(
+          'Кандзи N4 · ${roman[idx]}',
+          kind: 'kanji_vocab',
+          jlpt: 'N4',
+          subtitle: '${part.length} иероглифов N4 со словами',
+          sortOrder: 200 + idx,
+          description: idx == 0
+              ? 'Кандзи уровня N4 — те же правила, что и в N5: каждый иероглиф '
+                  'сразу со словами, где он реально встречается. Порядок — по '
+                  'частотности.'
+              : 'Ещё ${part.length} иероглифов N4.',
+        );
+        final ids = <int>[];
+        for (final k in part) {
+          ids.add(k.id);
+          final ws = await (db.select(db.wordKanji)
+                ..where((t) => t.kanjiContentItemId.equals(k.id)))
+              .get();
+          ids.addAll(ws.map((w) => w.wordContentItemId));
+        }
+        await link(unitId, ids);
+        n4KanjiUnitIds.add(unitId);
+      }
+    }
+
+    final uMilestoneN4 = n4KanjiUnitIds.isEmpty
+        ? null
+        : await ensureUnit('Веха N4',
+            kind: 'milestone',
+            jlpt: 'N4',
+            subtitle: 'Проверка уровня N4',
+            sortOrder: 260,
+            description:
+                'Кандзи N4 пройдены. Грамматика и лексика N4 добавятся в '
+                'следующих обновлениях курса — трек уже готов их принять.');
+
     // ---------- roadmap graph (rebuilt from scratch) ---------------
     await db.delete(db.unitPrerequisites).go();
     Future<void> req(int unit, int requires) => db
@@ -258,12 +308,17 @@ Future<void> ensureCurriculum(AppDatabase db) async {
     // Кана — общий вход.
     await req(uKatakana, uHiragana);
 
-    // Трек кандзи — своя цепочка, открывается после каны.
-    if (kanjiUnitIds.isNotEmpty) {
-      await req(kanjiUnitIds.first, uKatakana);
-      for (var i = 1; i < kanjiUnitIds.length; i++) {
-        await req(kanjiUnitIds[i], kanjiUnitIds[i - 1]);
+    // Трек кандзи — своя цепочка, открывается после каны. За N5 сразу
+    // продолжается кандзи N4, затем Веха N4.
+    final kanjiChain = [...kanjiUnitIds, ...n4KanjiUnitIds];
+    if (kanjiChain.isNotEmpty) {
+      await req(kanjiChain.first, uKatakana);
+      for (var i = 1; i < kanjiChain.length; i++) {
+        await req(kanjiChain[i], kanjiChain[i - 1]);
       }
+    }
+    if (uMilestoneN4 != null && n4KanjiUnitIds.isNotEmpty) {
+      await req(uMilestoneN4, n4KanjiUnitIds.last);
     }
 
     // Основной путь — один сквозной маршрут.

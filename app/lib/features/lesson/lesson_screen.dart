@@ -4,6 +4,8 @@ import '../../data/database.dart';
 import '../../data/seed/srs_enrollment.dart';
 import '../../services/speech_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/hint_banner.dart';
+import '../hints/hint_repository.dart';
 import '../review/review_screen.dart';
 import '../roadmap/roadmap_repository.dart';
 import '../stats/activity_tracker.dart';
@@ -144,6 +146,14 @@ class _LessonScreenState extends State<LessonScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              const HintBanner(
+                hintKey: HintKeys.lesson,
+                title: 'Как устроен урок',
+                body: 'Сначала — короткая теория. Потом практика: каждый '
+                    'элемент показывается карточкой, вы вспоминаете и '
+                    'переворачиваете. Всё показанное сразу попадает в '
+                    'Повторение — даже если выйти на середине.',
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(

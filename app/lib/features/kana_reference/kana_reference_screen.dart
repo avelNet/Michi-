@@ -4,6 +4,8 @@ import '../../data/database.dart';
 import '../../domain/japanese/dictionary_text.dart';
 import '../../domain/japanese/romaji.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/hint_banner.dart';
+import '../hints/hint_repository.dart';
 import 'kana_reference_repository.dart';
 
 /// Справочник каны — отдельный экран, не завязанный на прогресс по
@@ -46,8 +48,17 @@ class _KanaReferenceScreenState extends State<KanaReferenceScreen> {
       backgroundColor: colors.bg,
       body: Column(
         children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
+            child: HintBanner(
+              hintKey: HintKeys.kana,
+              title: 'Справочник — всегда под рукой',
+              body: 'Вся кана, независимо от прогресса по карте. Нажмите на '
+                  'знак — увидите чтение и слова-примеры, где он встречается.',
+            ),
+          ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
             child: Row(
               children: [
                 _scriptTab('Хирагана', 'hiragana', colors),
