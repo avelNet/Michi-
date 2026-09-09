@@ -134,6 +134,18 @@ class RoadmapRepository {
     return items;
   }
 
+  /// Какие из этих элементов уже есть в SRS у пользователя — то есть уже
+  /// были реально показаны в практике раньше (в этой или предыдущей,
+  /// прерванной на середине, сессии урока). Нужно, чтобы при повторном
+  /// открытии юнита не показывать заново то, что уже видели.
+  Future<Set<int>> loadEnrolledContentIds(String userId, List<int> contentItemIds) async {
+    if (contentItemIds.isEmpty) return {};
+    final rows = await (db.select(db.srsCards)
+          ..where((t) => t.userId.equals(userId) & t.contentItemId.isIn(contentItemIds)))
+        .get();
+    return rows.map((r) => r.contentItemId).toSet();
+  }
+
   Future<List<String>> loadPrerequisiteTitles(int unitId) async {
     final query = db.select(db.unitPrerequisites).join([
       innerJoin(

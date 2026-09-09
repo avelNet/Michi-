@@ -24,9 +24,11 @@ enum _Stage { loading, theory, practice, done }
 class _LessonScreenState extends State<LessonScreen> {
   late final RoadmapRepository _repo;
   _Stage _stage = _Stage.loading;
-  List<LessonItem> _items = [];
+  List<LessonItem> _items = []; // только то, что ЕЩЁ не зачислено в SRS
+  int _addedThisSession = 0;
   int _index = 0;
   bool _flipped = false;
+  bool _alreadyFullyLearned = false;
 
   @override
   void initState() {
@@ -36,25 +38,50 @@ class _LessonScreenState extends State<LessonScreen> {
   }
 
   Future<void> _load() async {
-    final items = await _repo.loadUnitLessonItems(widget.unit.id);
+    final allItems = await _repo.loadUnitLessonItems(widget.unit.id);
     await _repo.markUnitStarted(widget.userId, widget.unit.id);
+
+    final enrolledIds = await _repo.loadEnrolledContentIds(
+      widget.userId,
+      allItems.map((i) => i.contentItemId).toList(),
+    );
+    final remaining = allItems.where((i) => !enrolledIds.contains(i.contentItemId)).toList();
     if (!mounted) return;
+
+    // Всё содержимое юнита уже было показано раньше (сессия прервалась
+    // ровно на последней карточке, либо юнит открыли повторно) —
+    // просто закрепляем юнит как пройденный, не гоняя пустую практику.
+    if (allItems.isNotEmpty && remaining.isEmpty) {
+      await _repo.markUnitCompleted(widget.userId, widget.unit.id);
+      if (!mounted) return;
+      setState(() {
+        _alreadyFullyLearned = true;
+        _stage = _Stage.done;
+      });
+      return;
+    }
+
     setState(() {
-      _items = items;
+      _items = remaining;
       _stage = _Stage.theory;
     });
   }
 
   Future<void> _finish() async {
     await _repo.markUnitCompleted(widget.userId, widget.unit.id);
-    await enrollAccessibleContentInSrs(widget.db, widget.userId);
     if (!mounted) return;
     setState(() => _stage = _Stage.done);
   }
 
-  void _nextPracticeItem() {
+  Future<void> _nextPracticeItem() async {
+    // Зачисляем карточку сразу, как только её увидели — если сессия
+    // прервётся на середине, уже показанное всё равно попадёт
+    // в Повторение, а не потеряется.
+    await enrollOneInSrs(widget.db, widget.userId, _items[_index].contentItemId);
+    _addedThisSession++;
+    if (!mounted) return;
     if (_index + 1 >= _items.length) {
-      _finish();
+      await _finish();
       return;
     }
     setState(() {
@@ -161,7 +188,15 @@ class _LessonScreenState extends State<LessonScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              LinearProgressIndicator(value: (_index + 1) / _items.length),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: (_index + 1) / _items.length,
+                  minHeight: 6,
+                  backgroundColor: Theme.of(context).colors.surface2,
+                  valueColor: AlwaysStoppedAnimation(Theme.of(context).colors.accent),
+                ),
+              ),
               const SizedBox(height: 8),
               Text('${_index + 1} / ${_items.length}'),
               const SizedBox(height: 32),
@@ -226,7 +261,12 @@ class _LessonScreenState extends State<LessonScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Theme.of(context).colors.ink),
             ),
             const SizedBox(height: 8),
-            Text('${_items.length} элементов добавлено в Повторение', style: const TextStyle(color: Colors.grey)),
+            Text(
+              _alreadyFullyLearned
+                  ? 'Все элементы уже были изучены раньше'
+                  : '$_addedThisSession элементов добавлено в Повторение',
+              style: const TextStyle(color: Colors.grey),
+            ),
             const SizedBox(height: 24),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),

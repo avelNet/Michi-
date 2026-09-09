@@ -8,6 +8,25 @@ import '../database.dart';
 /// Вызывается при каждом запуске приложения (идемпотентно за счёт
 /// уникального индекса user+content_item+exercise_type), а не только
 /// при первом — по мере прохождения новых юнитов очередь пополняется.
+/// Зачисляет ОДИН элемент сразу после того, как пользователь его увидел
+/// в уроке — не дожидаясь конца всего юнита. Иначе прерванная на
+/// середине сессия (увидел 5 из 46 знаков и вышел) не сохраняла бы
+/// вообще ничего для повторения.
+Future<void> enrollOneInSrs(AppDatabase db, String userId, int contentItemId) async {
+  final now = DateTime.now().toIso8601String();
+  await db.into(db.srsCards).insert(
+        SrsCardsCompanion.insert(
+          id: 'srs-$userId-$contentItemId-flip_recall',
+          userId: userId,
+          contentItemId: contentItemId,
+          exerciseType: 'flip_recall',
+          state: const Value('new'),
+          dueAt: Value(now),
+        ),
+        mode: InsertMode.insertOrIgnore,
+      );
+}
+
 Future<void> enrollAccessibleContentInSrs(AppDatabase db, String userId) async {
   final accessibleUnits = await (db.select(db.unitProgress)
         ..where((t) =>
