@@ -8,7 +8,13 @@ import 'review_repository.dart';
 
 class ReviewScreen extends StatefulWidget {
   final AppDatabase db;
-  const ReviewScreen({super.key, required this.db});
+  /// null — все карточки; true — только трек кандзи; false — только
+  /// основной путь (без кандзи). Одна и та же граница, что и переключатель
+  /// треков на Карте — «повторение» из вкладки кандзи не должно
+  /// подсовывать частицы, и наоборот.
+  final bool? kanjiOnly;
+
+  const ReviewScreen({super.key, required this.db, this.kanjiOnly});
 
   @override
   State<ReviewScreen> createState() => _ReviewScreenState();
@@ -29,7 +35,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   Future<List<ReviewCard>> _load() async {
-    final cards = await _repo.loadDueCards(localUserId);
+    final cards = await _repo.loadDueCards(localUserId, kanjiOnly: widget.kanjiOnly);
     _queue
       ..clear()
       ..addAll(cards);
@@ -49,7 +55,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Повторение')),
+      appBar: AppBar(
+        title: Text(
+          widget.kanjiOnly == true
+              ? 'Повторение — кандзи'
+              : widget.kanjiOnly == false
+                  ? 'Повторение — основной путь'
+                  : 'Повторение',
+        ),
+      ),
       body: FutureBuilder<List<ReviewCard>>(
         future: _future,
         builder: (context, snapshot) {

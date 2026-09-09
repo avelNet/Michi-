@@ -181,16 +181,28 @@ class RoadmapRepository {
   }
 
   /// Сколько карточек SRS уже просрочено/готово к повторению сейчас.
-  /// Пока карточек в базе нет (Повторение ещё не реализовано) — честно 0.
-  Future<int> countDueReviews(String userId) async {
+  /// `kanjiOnly`: null — все; true — только трек кандзи; false — всё,
+  /// кроме кандзи (та же граница, что и в переключателе на Карте).
+  Future<int> countDueReviews(String userId, {bool? kanjiOnly}) async {
     final nowIso = DateTime.now().toIso8601String();
-    final rows = await (db.select(db.srsCards)
+    var rows = await (db.select(db.srsCards)
           ..where(
             (t) =>
                 t.userId.equals(userId) &
                 t.dueAt.isSmallerOrEqualValue(nowIso),
           ))
         .get();
+
+    if (kanjiOnly != null) {
+      final query = db.select(db.unitItems).join([
+        innerJoin(db.units, db.units.id.equalsExp(db.unitItems.unitId)),
+      ])
+        ..where(db.units.kind.equals('kanji_vocab'));
+      final kanjiRows = await query.get();
+      final kanjiIds = kanjiRows.map((r) => r.readTable(db.unitItems).contentItemId).toSet();
+      rows = rows.where((r) => kanjiIds.contains(r.contentItemId) == kanjiOnly).toList();
+    }
+
     return rows.length;
   }
 

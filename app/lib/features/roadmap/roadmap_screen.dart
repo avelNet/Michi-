@@ -42,10 +42,13 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
 
   Future<_RoadmapData> _load() async {
     final units = await _repo.loadUnits(localUserId);
-    final due = await _repo.countDueReviews(localUserId);
+    final dueKanji = await _repo.countDueReviews(localUserId, kanjiOnly: true);
+    final dueMain = await _repo.countDueReviews(localUserId, kanjiOnly: false);
     final streak = await _repo.currentStreakDays(localUserId);
     final n5 = await _repo.jlptProgressPct(localUserId, 'N5');
-    return _RoadmapData(units: units, dueReviews: due, streakDays: streak, n5Progress: n5);
+    return _RoadmapData(
+      units: units, dueReviewsKanji: dueKanji, dueReviewsMain: dueMain, streakDays: streak, n5Progress: n5,
+    );
   }
 
   @override
@@ -63,9 +66,14 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
           final data = snapshot.data!;
           return Row(
             children: [
-              _NavRail(colors: colors, onOpenReview: _openReview),
+              _NavRail(colors: colors, onOpenReview: () => _openReview(kanjiOnly: _showKanjiPath)),
               Expanded(child: _buildPathArea(colors, data)),
-              _Sidebar(colors: colors, data: data, onOpenReview: _openReview),
+              _Sidebar(
+                colors: colors,
+                data: data,
+                showingKanji: _showKanjiPath,
+                onOpenReview: () => _openReview(kanjiOnly: _showKanjiPath),
+              ),
             ],
           );
         },
@@ -73,9 +81,9 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
     );
   }
 
-  Future<void> _openReview() async {
+  Future<void> _openReview({bool? kanjiOnly}) async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db)),
+      MaterialPageRoute(builder: (_) => ReviewScreen(db: widget.db, kanjiOnly: kanjiOnly)),
     );
     setState(() => _future = _load());
   }
@@ -277,7 +285,9 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
         repo: _repo,
         onClose: () => setState(() => _selectedUnitId = null),
         onOpen: () => _openLesson(unit),
-        onOpenReview: unit.status == 'completed' ? _openReview : null,
+        onOpenReview: unit.status == 'completed'
+            ? () => _openReview(kanjiOnly: unit.kind == 'kanji_vocab')
+            : null,
       ),
     );
   }
@@ -285,13 +295,15 @@ class _RoadmapScreenState extends State<RoadmapScreen> {
 
 class _RoadmapData {
   final List<RoadmapUnit> units;
-  final int dueReviews;
+  final int dueReviewsKanji;
+  final int dueReviewsMain;
   final int streakDays;
   final double n5Progress;
 
   _RoadmapData({
     required this.units,
-    required this.dueReviews,
+    required this.dueReviewsKanji,
+    required this.dueReviewsMain,
     required this.streakDays,
     required this.n5Progress,
   });
@@ -743,11 +755,18 @@ class _NavRail extends StatelessWidget {
 class _Sidebar extends StatelessWidget {
   final AppColors colors;
   final _RoadmapData data;
+  final bool showingKanji;
   final VoidCallback onOpenReview;
-  const _Sidebar({required this.colors, required this.data, required this.onOpenReview});
+  const _Sidebar({
+    required this.colors,
+    required this.data,
+    required this.showingKanji,
+    required this.onOpenReview,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final due = showingKanji ? data.dueReviewsKanji : data.dueReviewsMain;
     return Container(
       width: 320,
       decoration: BoxDecoration(color: colors.surface, border: Border(left: BorderSide(color: colors.line))),
@@ -772,17 +791,17 @@ class _Sidebar extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _card(
-            label: 'СЕГОДНЯ К ПОВТОРЕНИЮ',
+            label: showingKanji ? 'СЕГОДНЯ К ПОВТОРЕНИЮ · КАНДЗИ' : 'СЕГОДНЯ К ПОВТОРЕНИЮ · ОСНОВНОЙ ПУТЬ',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${data.dueReviews}', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: colors.ink)),
+                Text('$due', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: colors.ink)),
                 const SizedBox(height: 4),
                 Text(
-                  data.dueReviews == 0 ? 'пока нечего повторять' : 'карточек ждут повторения',
+                  due == 0 ? 'пока нечего повторять' : 'карточек ждут повторения',
                   style: TextStyle(fontSize: 12.5, color: colors.muted),
                 ),
-                if (data.dueReviews > 0) ...[
+                if (due > 0) ...[
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,

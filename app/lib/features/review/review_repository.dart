@@ -26,12 +26,32 @@ class ReviewRepository {
   final AppDatabase db;
   ReviewRepository(this.db);
 
-  Future<List<ReviewCard>> loadDueCards(String userId) async {
+  /// Все content_item_id, принадлежащие хотя бы одному юниту трека
+  /// кандзи (unit.kind == 'kanji_vocab') — граница между "путь кандзи"
+  /// и "основной путь" в Повторении проведена ровно там же, где и на
+  /// самой Карте (переключатель треков), а не отдельной эвристикой.
+  Future<Set<int>> _kanjiTrackContentIds() async {
+    final query = db.select(db.unitItems).join([
+      innerJoin(db.units, db.units.id.equalsExp(db.unitItems.unitId)),
+    ])
+      ..where(db.units.kind.equals('kanji_vocab'));
+    final rows = await query.get();
+    return rows.map((r) => r.readTable(db.unitItems).contentItemId).toSet();
+  }
+
+  /// `kanjiOnly`: null — все карточки; true — только трек кандзи;
+  /// false — всё, КРОМЕ трека кандзи (основной путь).
+  Future<List<ReviewCard>> loadDueCards(String userId, {bool? kanjiOnly}) async {
     final nowIso = DateTime.now().toIso8601String();
-    final dueRows = await (db.select(db.srsCards)
+    var dueRows = await (db.select(db.srsCards)
           ..where((t) => t.userId.equals(userId) & t.dueAt.isSmallerOrEqualValue(nowIso))
           ..orderBy([(t) => OrderingTerm.asc(t.dueAt)]))
         .get();
+
+    if (kanjiOnly != null) {
+      final kanjiIds = await _kanjiTrackContentIds();
+      dueRows = dueRows.where((r) => kanjiIds.contains(r.contentItemId) == kanjiOnly).toList();
+    }
 
     final cards = <ReviewCard>[];
     for (final row in dueRows) {
