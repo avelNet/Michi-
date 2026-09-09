@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/database.dart';
 import '../../domain/srs/srs_scheduler.dart';
 import '../../theme/app_theme.dart';
+import '../stats/activity_tracker.dart';
 import 'review_repository.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -27,6 +28,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   final List<ReviewCard> _queue = [];
   bool _revealed = false;
   int _doneCount = 0;
+  DateTime _lastRateAt = DateTime.now();
+  int _secAccum = 0;
 
   @override
   void initState() {
@@ -46,6 +49,18 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Future<void> _rate(ReviewRating rating) async {
     final card = _queue.first;
     await _repo.recordReview(userId: widget.userId, card: card, rating: rating);
+
+    // Живой учёт времени: реальная пауза между оценками, но не больше
+    // 2 минут за карточку (иначе «отошёл и вернулся» раздует статистику).
+    final delta = DateTime.now().difference(_lastRateAt).inSeconds.clamp(0, 120);
+    _lastRateAt = DateTime.now();
+    _secAccum += delta;
+    if (_secAccum >= 60) {
+      final mins = _secAccum ~/ 60;
+      _secAccum %= 60;
+      await bumpActivity(widget.db, widget.userId, minutes: mins);
+    }
+
     setState(() {
       _queue.removeAt(0);
       _revealed = false;

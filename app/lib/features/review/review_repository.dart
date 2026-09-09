@@ -5,6 +5,7 @@ import '../../data/database.dart';
 import '../../domain/japanese/dictionary_text.dart';
 import '../../domain/japanese/romaji.dart';
 import '../../domain/srs/srs_scheduler.dart';
+import '../stats/activity_tracker.dart';
 
 class ReviewCard {
   final String srsCardId;
@@ -170,24 +171,8 @@ class ReviewRepository {
               device: const Value('windows'),
             ),
           );
-
-      final today = now.toIso8601String().substring(0, 10);
-      final existingDay = await (db.select(db.dailyActivity)
-            ..where((t) => t.userId.equals(userId) & t.activityDate.equals(today)))
-          .getSingleOrNull();
-      if (existingDay == null) {
-        await db.into(db.dailyActivity).insert(
-              DailyActivityCompanion.insert(
-                userId: userId,
-                activityDate: today,
-                reviewsDone: const Value(1),
-              ),
-            );
-      } else {
-        await (db.update(db.dailyActivity)
-              ..where((t) => t.userId.equals(userId) & t.activityDate.equals(today)))
-            .write(DailyActivityCompanion(reviewsDone: Value(existingDay.reviewsDone + 1)));
-      }
     });
+
+    await bumpActivity(db, userId, reviews: 1);
   }
 }

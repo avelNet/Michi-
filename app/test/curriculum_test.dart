@@ -67,6 +67,37 @@ void main() {
     expect((await db.select(db.unitItems).get()).length, links1);
   });
 
+  test('на «старой» установке не плодит дубли юнитов и чинит граф', () async {
+    // Симулируем состояние после старого сида: пустые юниты уже есть,
+    // и есть устаревшие/конфликтующие предпосылки.
+    final g1 = await db.into(db.units).insert(UnitsCompanion.insert(
+        title: 'Грамматика N5 I', kind: 'grammar', jlptLevel: const Value('N5'), sortOrder: 9));
+    final p1 = await db.into(db.units).insert(UnitsCompanion.insert(
+        title: 'Частицы I', kind: 'particle', jlptLevel: const Value('N5'), sortOrder: 8));
+    await db.into(db.units).insert(UnitsCompanion.insert(
+        title: 'Веха N5', kind: 'milestone', jlptLevel: const Value('N5'), sortOrder: 14));
+    // Старая предпосылка: Грамматика I требует Частицы I (в новой карте — наоборот).
+    await db.into(db.unitPrerequisites).insert(
+        UnitPrerequisitesCompanion.insert(unitId: g1, requiresUnitId: p1));
+
+    await ensureCurriculum(db);
+
+    // По одному юниту на каждый заголовок.
+    for (final title in ['Грамматика N5 I', 'Частицы I', 'Веха N5']) {
+      final rows = await (db.select(db.units)..where((t) => t.title.equals(title))).get();
+      expect(rows.length, 1, reason: 'дубль юнита "$title"');
+    }
+    // Конфликтующей предпосылки больше нет (граф пересобран).
+    final gReqP = await (db.select(db.unitPrerequisites)
+          ..where((t) => t.unitId.equals(g1) & t.requiresUnitId.equals(p1)))
+        .get();
+    expect(gReqP, isEmpty);
+
+    // Пустые юниты наполнились.
+    final g1Items = await (db.select(db.unitItems)..where((t) => t.unitId.equals(g1))).get();
+    expect(g1Items, isNotEmpty);
+  });
+
   test('граф прерогатив без циклов и достижим с каны', () async {
     await ensureCurriculum(db);
     final units = await db.select(db.units).get();

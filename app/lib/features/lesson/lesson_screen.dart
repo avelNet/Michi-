@@ -6,6 +6,7 @@ import '../../services/speech_service.dart';
 import '../../theme/app_theme.dart';
 import '../review/review_screen.dart';
 import '../roadmap/roadmap_repository.dart';
+import '../stats/activity_tracker.dart';
 
 /// Урок одного юнита: сначала теория (текст), потом практика —
 /// пролистать каждый элемент юнита лицом/изнанкой. По завершении юнит
@@ -32,6 +33,7 @@ class _LessonScreenState extends State<LessonScreen> {
   bool _flipped = false;
   bool _alreadyFullyLearned = false;
   bool _hasJaVoice = true; // до проверки считаем, что голос есть
+  final _startedAt = DateTime.now();
 
   bool get _isListening => widget.unit.kind == 'listening';
 
@@ -50,6 +52,10 @@ class _LessonScreenState extends State<LessonScreen> {
   @override
   void dispose() {
     SpeechService.instance.stop();
+    if (_addedThisSession > 0) {
+      final mins = DateTime.now().difference(_startedAt).inMinutes.clamp(1, 60);
+      bumpActivity(widget.db, widget.userId, minutes: mins);
+    }
     super.dispose();
   }
 
@@ -100,6 +106,7 @@ class _LessonScreenState extends State<LessonScreen> {
     // прервётся на середине, уже показанное всё равно попадёт
     // в Повторение, а не потеряется.
     await enrollOneInSrs(widget.db, widget.userId, _items[_index].contentItemId);
+    await bumpActivity(widget.db, widget.userId, newItems: 1);
     _addedThisSession++;
     if (!mounted) return;
     if (_index + 1 >= _items.length) {
