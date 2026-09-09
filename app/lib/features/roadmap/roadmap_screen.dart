@@ -727,6 +727,7 @@ class _NavRail extends StatelessWidget {
       (Icons.style_outlined, 'Повторение', false, onOpenReview),
       (Icons.grid_view_outlined, 'Кана — справочник', false, onOpenKana),
       (Icons.bar_chart_outlined, 'Статистика (скоро)', false, null),
+      (Icons.settings_outlined, 'Настройки (скоро)', false, null),
     ];
     return Container(
       width: 76,
@@ -756,8 +757,10 @@ class _NavRail extends StatelessWidget {
                 ),
               ),
             ),
+          // Настройки переехали в общий список выше. Здесь снизу — место
+          // под будущую кнопку личного кабинета (когда появится
+          // авторизация), пока сознательно пусто, а не фиктивная иконка.
           const Spacer(),
-          Icon(Icons.settings_outlined, color: colors.inkSoft, size: 22),
         ],
       ),
     );

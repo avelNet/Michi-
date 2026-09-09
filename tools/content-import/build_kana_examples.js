@@ -15,8 +15,12 @@ function loadJson(name) {
 const HIRAGANA_RE = /^[぀-ゟ]+$/;
 const KATAKANA_RE = /^[゠-ヿー]+$/;
 
-const BAD_POS = /\b(vulg|sl|arch|obs|derog|male-sl|fem-sl|X)\b/;
-const BAD_REGISTER = /^\((уст|кн|прост|поэт|ист|ср|см)\.\)/i;
+// Та же логика фильтра, что и в build_kanji_dataset.js — включая теги
+// организаций/сокращений/собственных имён, которые особенно часто
+// портят примеры именно для катаканы (она вся из заимствований —
+// названия агентств, аббревиатуры и т.п. попадаются на каждом шагу).
+const BAD_POS = /\b(vulg|sl|arch|obs|derog|male-sl|fem-sl|X|organization|company|abbr|hist|Buddh|work|fict|myth|ship|given|surname)\b/;
+const BAD_REGISTER = /^\((уст|кн|прост|поэт|ист|ср|см)\b/i;
 
 // Годзюон — тот же список, что и в content_seed.dart, чтобы результат
 // совпадал 1:1 с уже засеянными знаками.

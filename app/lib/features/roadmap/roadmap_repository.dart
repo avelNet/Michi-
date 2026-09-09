@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../data/database.dart';
@@ -221,13 +223,14 @@ class RoadmapRepository {
     return list.first.replaceFirst(RegExp(r'^\d+\)\s*:?\s*'), '');
   }
 
+  /// Настоящий JSON-разбор, а не самодельный split(','). Значения часто
+  /// сами содержат запятую внутри одного смысла («человек, люди») —
+  /// наивный split резал бы их на лишние куски. Раньше здесь был именно
+  /// такой самодельный парсер — реальный баг, найденный на примере
+  /// «(кн. суф. …)» и подобных многозапятых значений.
   List<String> _parseJsonArray(String jsonArray) {
-    final inner = jsonArray.trim().replaceAll(RegExp(r'^\[|\]$'), '');
-    return inner
-        .split(',')
-        .map((s) => s.trim().replaceAll('"', ''))
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final decoded = jsonDecode(jsonArray);
+    return (decoded as List).map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
   }
 
   String _joinJsonArray(String jsonArray) => _parseJsonArray(jsonArray).join(', ');

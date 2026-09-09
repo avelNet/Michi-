@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../data/database.dart';
@@ -189,19 +191,43 @@ class _SelectedKanaDetail extends StatelessWidget {
               }
               return ListView.separated(
                 itemCount: words.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 14),
+                separatorBuilder: (_, _) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: Divider(height: 1, color: colors.line),
+                ),
                 itemBuilder: (context, i) {
                   final w = words[i];
+                  final senses = _senses(w.meaningsRu);
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(w.surface, style: TextStyle(fontFamily: AppFonts.jp, fontSize: 18, color: colors.ink)),
+                      Text(w.surface, style: TextStyle(fontFamily: AppFonts.jp, fontSize: 20, color: colors.ink)),
+                      const SizedBox(height: 3),
                       Text(
                         '${w.reading} (${kanaToRomaji(w.reading)})',
-                        style: TextStyle(fontSize: 12.5, color: colors.muted),
+                        style: TextStyle(fontSize: 13, color: colors.muted),
                       ),
-                      const SizedBox(height: 2),
-                      Text(_meaning(w.meaningsRu), style: TextStyle(fontSize: 13, color: colors.inkSoft)),
+                      const SizedBox(height: 8),
+                      // Полностью, без урезания — но по пунктам, а не
+                      // сплошным текстом со всеми смыслами вперемешку.
+                      for (final sense in senses)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (senses.length > 1) ...[
+                                Text('•  ', style: TextStyle(fontSize: 14, color: colors.accent)),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  sense,
+                                  style: TextStyle(fontSize: 14, height: 1.4, color: colors.inkSoft),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   );
                 },
@@ -213,8 +239,16 @@ class _SelectedKanaDetail extends StatelessWidget {
     );
   }
 
-  String _meaning(String jsonArray) {
-    final inner = jsonArray.trim().replaceAll(RegExp(r'^\[|\]$'), '');
-    return inner.split(',').map((s) => s.trim().replaceAll('"', '')).where((s) => s.isNotEmpty).join(', ');
+  /// Каждый смысл слова — отдельным пунктом, без склеивания через
+  /// запятую. Убираем сырую нумерацию вида "1) "/"2): " из источника —
+  /// список сам по себе уже нумерует смыслы визуально (буллетом), число
+  /// в тексте было бы дублированием.
+  List<String> _senses(String jsonArray) {
+    final decoded = jsonDecode(jsonArray) as List;
+    return decoded
+        .map((e) => e.toString())
+        .where((s) => s.isNotEmpty)
+        .map((s) => s.replaceFirst(RegExp(r'^\d+\)\s*:?\s*'), ''))
+        .toList();
   }
 }

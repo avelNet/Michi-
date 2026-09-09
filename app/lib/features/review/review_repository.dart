@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -119,15 +121,12 @@ class ReviewRepository {
     return '${w.surfaceForm} — ${_primaryMeaning(w.meaningsRu)}';
   }
 
+  /// Настоящий JSON-разбор — значения сами часто содержат запятую внутри
+  /// одного смысла («человек, люди»), наивный split(',') резал бы их
+  /// на лишние куски.
   List<String> _parseJsonArray(String jsonArray) {
-    // Значения хранятся как простой JSON-массив строк (см. db/schema.sql);
-    // для карточки достаточно грубого разбора без зависимости от dart:convert-схемы.
-    final inner = jsonArray.trim().replaceAll(RegExp(r'^\[|\]$'), '');
-    return inner
-        .split(',')
-        .map((s) => s.trim().replaceAll('"', ''))
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final decoded = jsonDecode(jsonArray);
+    return (decoded as List).map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
   }
 
   String _joinJsonArray(String jsonArray) => _parseJsonArray(jsonArray).join(', ');

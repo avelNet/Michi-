@@ -17,11 +17,15 @@ function loadJson(name) {
   return JSON.parse(fs.readFileSync(path.join(DIR, name), 'utf8'));
 }
 
-// Простые, надёжные переводы базовых значений кандзи на русский —
-// только для короткого списка типичных английских глянцев KANJIDIC2,
-// которые реально повторяются у сотен кандзи. Что не найдено в словаре —
-// остаётся на английском с пометкой, чтобы не выдумывать перевод.
-const MEANING_RU = {
+// Переводы значений кандзи на русский. meaning_ru.json — переведённый
+// вручную (не автоматически) набор всех английских глоссов KANJIDIC2,
+// нужных для N5-кандзи и кандзи, встречающихся в их словах-примерах
+// (~820 терминов, 100% покрытие этой области — см.
+// docs/content-sources.md). Маленький словарь ниже — более старый,
+// частичный набор, оставлен как запасной для кандзи вне этой области;
+// meaning_ru.json имеет приоритет при конфликте ключей. Что не найдено
+// ни там, ни там — остаётся на английском, а не выдумывается.
+const MEANING_RU_FALLBACK = {
   'person':'человек','one':'один','day':'день','sun':'солнце','big':'большой','year':'год',
   'go out':'выходить','exit':'выход','book':'книга','origin':'основа','middle':'середина',
   'inside':'внутри','child':'ребёнок','see':'видеть','look':'смотреть','build':'строить','built':'построенный',
@@ -56,17 +60,25 @@ const MEANING_RU = {
   'paper':'бумага','pen':'ручка','letter (mail)':'письмо','思':'думать',
 };
 
+const MEANING_RU = { ...MEANING_RU_FALLBACK, ...loadJson('meaning_ru.json') };
+
 function translateMeanings(englishMeanings) {
   const ru = [];
+  const untranslated = [];
   for (const m of englishMeanings) {
     const key = m.toLowerCase().trim();
     if (MEANING_RU[key]) ru.push(MEANING_RU[key]);
+    else untranslated.push(m);
   }
-  if (ru.length === 0) return englishMeanings; // честно оставляем английский, не выдумываем
-  return [...new Set(ru)];
+  if (ru.length > 0) return [...new Set(ru)];
+  // Ничего не нашли в словаре вообще — честно оставляем английский, но
+  // с пометкой, чтобы это не выглядело как перевод (было тихо и незаметно
+  // раньше — реальный баг, из-за которого в интерфейсе всплывал сырой
+  // английский текст без объяснения, что это такое).
+  return untranslated.map((m) => `${m} (en)`);
 }
 
-const BAD_POS = /\b(vulg|sl|arch|obs|derog|male-sl|fem-sl|X)\b/;
+const BAD_POS = /\b(vulg|sl|arch|obs|derog|male-sl|fem-sl|X|organization|company|abbr|hist|Buddh|work|fict|myth|ship|given|surname)\b/;
 
 // Пометки регистра/редкости прямо в тексте русского перевода этого
 // словаря (не в JMdict pos, поэтому BAD_POS их не ловит) — устаревшее,
@@ -77,7 +89,7 @@ const BAD_POS = /\b(vulg|sl|arch|obs|derog|male-sl|fem-sl|X)\b/;
 // (напр. 治国 «(уст.) управление государством» — реальный, но не
 // ходовой в современной речи). Предметные пометки (мед., юр., спорт.
 // и т.п.) — это не редкость, а просто область, их не трогаем.
-const BAD_REGISTER = /^\((уст|кн|прост|поэт|ист|ср|см)\.\)/i;
+const BAD_REGISTER = /^\((уст|кн|прост|поэт|ист|ср|см)\b/i;
 
 function buildVocabIndex(kanjiChars) {
   const charSet = new Set(kanjiChars);
