@@ -68,6 +68,17 @@ function translateMeanings(englishMeanings) {
 
 const BAD_POS = /\b(vulg|sl|arch|obs|derog|male-sl|fem-sl|X)\b/;
 
+// Пометки регистра/редкости прямо в тексте русского перевода этого
+// словаря (не в JMdict pos, поэтому BAD_POS их не ловит) — устаревшее,
+// книжное, просторечное, поэтическое, историческое, "смотри"/"ср."
+// (это вообще не перевод, а отсылка на другую статью). Слово с такой
+// пометкой в ПЕРВОМ значении — плохой пример для первого знакомства
+// с кандзи, даже если оно короткое и технически переводится верно
+// (напр. 治国 «(уст.) управление государством» — реальный, но не
+// ходовой в современной речи). Предметные пометки (мед., юр., спорт.
+// и т.п.) — это не редкость, а просто область, их не трогаем.
+const BAD_REGISTER = /^\((уст|кн|прост|поэт|ист|ср|см)\.\)/i;
+
 function buildVocabIndex(kanjiChars) {
   const charSet = new Set(kanjiChars);
   const index = new Map(); // char -> [{surface, reading, meanings_ru, len}]
@@ -77,6 +88,8 @@ function buildVocabIndex(kanjiChars) {
       if (!e.kanji || !e.glossary_ru || e.glossary_ru.length === 0) continue;
       if (e.pos && BAD_POS.test(e.pos)) continue;
       if (e.kanji.length > 4) continue; // отсекаем длинные редкие составные слова
+      const primaryGloss = e.glossary_ru[0] || '';
+      if (BAD_REGISTER.test(primaryGloss.trim())) continue;
       const charsHere = new Set(e.kanji.split('').filter((c) => charSet.has(c)));
       for (const c of charsHere) {
         if (!index.has(c)) index.set(c, []);

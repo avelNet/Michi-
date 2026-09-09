@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/database.dart';
+import '../../domain/japanese/romaji.dart';
 import '../../domain/srs/srs_scheduler.dart';
 
 class ReviewCard {
@@ -86,15 +87,15 @@ class ReviewRepository {
             .getSingleOrNull();
         if (k == null) return null;
         final readings = [
-          if (k.onYomi != null) 'он: ${_joinJsonArray(k.onYomi!)}',
-          if (k.kunYomi != null) 'кун: ${_joinJsonArray(k.kunYomi!)}',
+          if (k.onYomi != null) 'он: ${_joinReadingsWithRomaji(k.onYomi!)}',
+          if (k.kunYomi != null) 'кун: ${_joinReadingsWithRomaji(k.kunYomi!)}',
         ].join('\n');
         return (k.char, '${_joinJsonArray(k.meaningsRu)}\n$readings');
       case 'word':
         final w = await (db.select(db.words)..where((t) => t.contentItemId.equals(contentItemId)))
             .getSingleOrNull();
         if (w == null) return null;
-        return (w.surfaceForm, '${w.reading}\n${_joinJsonArray(w.meaningsRu)}');
+        return (w.surfaceForm, '${w.reading} (${kanaToRomaji(w.reading)})\n${_joinJsonArray(w.meaningsRu)}');
       case 'particle':
         final p = await (db.select(db.particles)..where((t) => t.contentItemId.equals(contentItemId)))
             .getSingleOrNull();
@@ -105,7 +106,7 @@ class ReviewRepository {
     }
   }
 
-  String _joinJsonArray(String jsonArray) {
+  List<String> _parseJsonArray(String jsonArray) {
     // Значения хранятся как простой JSON-массив строк (см. db/schema.sql);
     // для карточки достаточно грубого разбора без зависимости от dart:convert-схемы.
     final inner = jsonArray.trim().replaceAll(RegExp(r'^\[|\]$'), '');
@@ -113,7 +114,15 @@ class ReviewRepository {
         .split(',')
         .map((s) => s.trim().replaceAll('"', ''))
         .where((s) => s.isNotEmpty)
-        .join(', ');
+        .toList();
+  }
+
+  String _joinJsonArray(String jsonArray) => _parseJsonArray(jsonArray).join(', ');
+
+  /// Каждое чтение из JSON-массива — с ромадзи рядом, для тех, кому пока
+  /// проще ориентироваться по латинице, чем бегло читать кану.
+  String _joinReadingsWithRomaji(String jsonArray) {
+    return _parseJsonArray(jsonArray).map((r) => '$r (${kanaToRomaji(r)})').join(', ');
   }
 
   Future<void> recordReview({

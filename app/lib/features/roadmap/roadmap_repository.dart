@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../data/database.dart';
+import '../../domain/japanese/romaji.dart';
 
 class RoadmapUnit {
   final int id;
@@ -141,10 +142,27 @@ class RoadmapRepository {
           items.add(LessonItem(contentItemId: ci.id, front: k.char, back: k.romaji, theory: null));
         case 'kanji':
           final k = await (db.select(db.kanji)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
-          items.add(LessonItem(contentItemId: ci.id, front: k.char, back: k.meaningsRu, theory: k.mnemonic));
+          final onRu = k.onYomi != null ? _joinReadingsWithRomaji(k.onYomi!) : null;
+          final kunRu = k.kunYomi != null ? _joinReadingsWithRomaji(k.kunYomi!) : null;
+          final readingLines = [
+            if (onRu != null && onRu.isNotEmpty) 'он: $onRu',
+            if (kunRu != null && kunRu.isNotEmpty) 'кун: $kunRu',
+          ].join('\n');
+          items.add(LessonItem(
+            contentItemId: ci.id,
+            front: k.char,
+            back: '${_joinJsonArray(k.meaningsRu)}${readingLines.isEmpty ? '' : '\n$readingLines'}',
+            theory: k.mnemonic,
+          ));
         case 'word':
           final w = await (db.select(db.words)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
-          items.add(LessonItem(contentItemId: ci.id, front: w.surfaceForm, back: '${w.reading} — ${w.meaningsRu}', theory: null));
+          final decomposition = await _kanjiDecomposition(ci.id);
+          items.add(LessonItem(
+            contentItemId: ci.id,
+            front: w.surfaceForm,
+            back: '${w.reading} (${kanaToRomaji(w.reading)})\n${_joinJsonArray(w.meaningsRu)}',
+            theory: decomposition,
+          ));
         case 'particle':
           final p = await (db.select(db.particles)..where((t) => t.contentItemId.equals(ci.id))).getSingle();
           items.add(LessonItem(contentItemId: ci.id, front: p.particle, back: p.shortDescription ?? '', theory: p.longTheory));
@@ -154,6 +172,41 @@ class RoadmapRepository {
       }
     }
     return items;
+  }
+
+  /// Разбивка слова на составляющие кандзи с их собственными значениями
+  /// — например для 国民 показать не только «народ, нация» целиком, а
+  /// и то, что 国 значит «страна», а 民 значит «люди/народ» по отдельности.
+  /// Так кандзи не теряется как отдельный смысл внутри сочетания, даже
+  /// если само сочетание введено раньше своих частей.
+  Future<String?> _kanjiDecomposition(int wordContentItemId) async {
+    final query = db.select(db.wordKanji).join([
+      innerJoin(db.kanji, db.kanji.contentItemId.equalsExp(db.wordKanji.kanjiContentItemId)),
+    ])
+      ..where(db.wordKanji.wordContentItemId.equals(wordContentItemId));
+    final rows = await query.get();
+    if (rows.length < 2) return null; // одиночный кандзи — уже показан на своей карточке
+
+    final parts = rows.map((row) {
+      final k = row.readTable(db.kanji);
+      return '${k.char} (${_joinJsonArray(k.meaningsRu)})';
+    });
+    return parts.join(' + ');
+  }
+
+  List<String> _parseJsonArray(String jsonArray) {
+    final inner = jsonArray.trim().replaceAll(RegExp(r'^\[|\]$'), '');
+    return inner
+        .split(',')
+        .map((s) => s.trim().replaceAll('"', ''))
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+
+  String _joinJsonArray(String jsonArray) => _parseJsonArray(jsonArray).join(', ');
+
+  String _joinReadingsWithRomaji(String jsonArray) {
+    return _parseJsonArray(jsonArray).map((r) => '$r (${kanaToRomaji(r)})').join(', ');
   }
 
   /// Какие из этих элементов уже есть в SRS у пользователя — то есть уже
